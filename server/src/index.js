@@ -1,5 +1,8 @@
 import Socket from "./classes/Socket";
 import ConsoleStylingClass from "./classes/Console";
+import Database from "./database/Database";
+
+const databaseConnection = "mongodb://127.0.0.1:27017/laz_engine";
 
 let monitorList = [];
 let controllerList = [];
@@ -20,15 +23,34 @@ export const addToControllerList = (controller) => {
   controllerList.push(controller);
 }
 
+
+//Main Class
 class MainClass{
+  //Main method
   static main(){
-    
+    Database.initDatabase(databaseConnection);
     Socket.initServer(8000);
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ********************** FOR TESTING *********************** */
 //comment when deploying
+
 ConsoleStylingClass.run();
 MainClass.main();
 

@@ -3,8 +3,18 @@ import { Gradient } from "../components/Gradient";
 import { fontColor } from "../constants";
 import { Button } from "../components/choose/Button";
 import { IoIosDesktop, IoIosCog } from "react-icons/io";
+import { withRouter } from "react-router-dom";
+import { REGISTER_MONITOR, SELECT_TOURNAMENT } from "../routes";
 
-export default class ChooseScreen extends Component {
+class ChooseScreen extends Component {
+  onClickMonitor = () => {
+    this.props.history.push(REGISTER_MONITOR);
+  };
+
+  onClickController = () => {
+    this.props.history.push(SELECT_TOURNAMENT);
+  };
+
   render() {
     return (
       <div style={{ width: "100%" }}>
@@ -81,11 +91,21 @@ export default class ChooseScreen extends Component {
           }}
         >
           <div className="hide-on-small-only">
-            <Button icon={() => <IoIosDesktop />} text="Monitor" />
+            <Button
+              onClick={this.onClickMonitor}
+              icon={() => <IoIosDesktop />}
+              text="Monitor"
+            />
           </div>
-          <Button icon={() => <IoIosCog />} text="Controller" />
+          <Button
+            onClick={this.onClickController}
+            icon={() => <IoIosCog />}
+            text="Controller"
+          />
         </div>
       </div>
     );
   }
 }
+
+export default withRouter(ChooseScreen);

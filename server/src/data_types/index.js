@@ -9,3 +9,8 @@
  */
 export const ADD_MONITOR = "ADD_MONITOR";
 export const ADD_CONTROLLER = "ADD_CONTROLLER";
+
+/**
+ * Controller asking for tournament list available
+ */
+export const GET_TOURNAMENT_LIST = "GET_TOURNAMENT_LIST";

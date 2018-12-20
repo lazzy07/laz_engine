@@ -4,6 +4,7 @@ import { fontColor } from "../../constants";
 export const Button = props => {
   return (
     <div
+      onClick={props.onClick}
       className="pulse z-depth-1 chooseButton"
       style={{
         padding: "30px",

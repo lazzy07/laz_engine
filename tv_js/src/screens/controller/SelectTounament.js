@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { fontColor } from "../../constants";
 import { Gradient } from "../../components/Gradient";
+import { connect } from "react-redux";
+import { getTournamentList } from "../../redux/actions/TournamentActions";
 
 const data = [
   {
@@ -29,12 +31,17 @@ const data = [
   }
 ];
 
-export default class SelectTournament extends Component {
+class SelectTournament extends Component {
+  componentDidMount() {
+    this.props.getTournamentList();
+  }
+
   renderTournamentList = data => {
     if (data) {
-      return data.map(ele => {
+      return data.map((ele, index) => {
         return (
           <div
+            key={index}
             className="pressable"
             style={{
               padding: "5px",
@@ -146,3 +153,16 @@ export default class SelectTournament extends Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  return { tournamentList: state.tournament.tournamentList };
+};
+
+const mapDispatchToProps = {
+  getTournamentList
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SelectTournament);

@@ -6,8 +6,12 @@ import { Route, Switch } from "react-router-dom";
 import * as Routes from "./routes";
 import SelectTournament from "./screens/controller/SelectTounament";
 import Monitor from "./screens/display/Monitor";
+import Socket from "./socket/Socket";
 
 class App extends Component {
+  componentWillMount() {
+    Socket.initSocket("192.168.1.2", 8000);
+  }
   render() {
     return (
       <div className="App">

@@ -1,5 +1,6 @@
 server/node_modules
 tv_js/node_modules
+tv_js/public/dependencies/videos/background_videos
 
 server/dist
 

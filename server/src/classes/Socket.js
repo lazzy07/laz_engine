@@ -11,7 +11,21 @@ export default class Socket{
   static initServer(port) {
     io.on('connection', (client) => {
       console.log("Client initiated");
-      Socket.handleData(client);
+      
+      client.on("GET_TOURNAMENT_LIST", ()=> {
+        console.log("lol");
+      })
+  
+      client.on(ADD_MONITOR, (data) => {
+        let m = new Monitor(client, data.payload.name);
+        addToMonitorList(m);
+      })
+  
+      client.on(ADD_CONTROLLER, () => {
+        let c = new Controller(client);
+        addToControllerList(c);
+      })
+
     });
 
     io.listen(port);
@@ -38,21 +52,5 @@ export default class Socket{
       default:
         console.log("ERROR ::: Wrong data in parser");
     }
-  }
-
-  /**
-   * Handle incoming data
-   * @param {Socket} client socket of the monitor 
-   */
-  static handleData(client){
-    client.on(ADD_MONITOR, (data) => {
-      let m = new Monitor(client, data.payload.name);
-      addToMonitorList(m);
-    })
-
-    client.on(ADD_CONTROLLER, () => {
-      let c = new Controller(client);
-      addToControllerList(c);
-    })
   }
 }

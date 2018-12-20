@@ -4,6 +4,7 @@
   "description": "Manage Sports Data",
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
+    "mongoose": "^5.4.0",
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
