@@ -2,8 +2,14 @@ import React, { Component } from "react";
 import SettingsScreen from "./Settings";
 import AddDataScreen from "./AddData";
 import ControlScreen from "./Control";
+import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
+import { getTournamentData } from "../../redux/actions/TournamentActions";
+import { getPlayerList } from "../../redux/actions/PlayerActions";
+import { getTeamData } from "../../redux/actions/TeamActions";
+import { getMatchesList } from "../../redux/actions/MatchActions";
 
-export default class MainControllerScreen extends Component {
+class MainControllerScreen extends Component {
   constructor(props) {
     super(props);
 
@@ -18,9 +24,15 @@ export default class MainControllerScreen extends Component {
       if (screen === "control") {
         return <ControlScreen />;
       } else if (screen === "add_data") {
-        return <AddDataScreen />;
+        return (
+          <AddDataScreen
+            matches={this.props.matches}
+            teams={this.props.teams}
+            players={this.props.players}
+          />
+        );
       } else if (screen === "settings") {
-        return <SettingsScreen />;
+        return <SettingsScreen data={this.props.tournamentData} />;
       }
     }
   };
@@ -30,33 +42,39 @@ export default class MainControllerScreen extends Component {
       screen: e
     });
   };
+
+  componentDidMount() {
+    let tournament = this.props.location.pathname.split("/")[2];
+
+    this.props.getTournamentData();
+    this.props.getMatchesList(tournament);
+    this.props.getPlayerList(tournament);
+    this.props.getTeamData(tournament);
+  }
+
   /* eslint-disable no-alert, no-console */
   render() {
     return (
       <div>
         <nav>
-          <div className="nav-wrapper blue">
-            <a href="lol" className="brand-logo">
-              LAZ Engine
-            </a>
+          <div className="nav-wrapper teal">
+            <span
+              className="brand-logo left hide-on-small-only"
+              style={{ paddingLeft: "5px", overflow: "hidden" }}
+            >
+              {this.props.tournamentData.name}
+            </span>
             <ul id="nav-mobile" className="right">
               <li>
-                <a
-                  href="javascript:void(0);"
-                  onClick={() => this.onClick("control")}
-                >
-                  Control
-                </a>
+                {/* eslint-disable-next-line */}
+                <a onClick={() => this.onClick("control")}>Control</a>
               </li>
               <li>
-                <a
-                  href="javascript:void(0);"
-                  onClick={() => this.onClick("add_data")}
-                >
-                  Add Data
-                </a>
+                {/* eslint-disable-next-line */}
+                <a onClick={() => this.onClick("add_data")}>Add Data</a>
               </li>
               <li>
+                {/* eslint-disable-next-line */}
                 <a role="button" onClick={() => this.onClick("settings")}>
                   Settings
                 </a>
@@ -69,3 +87,26 @@ export default class MainControllerScreen extends Component {
     );
   }
 }
+
+const mapDispatchToProps = {
+  getTournamentData,
+  getPlayerList,
+  getMatchesList,
+  getTeamData
+};
+
+const mapStateToProps = state => {
+  return {
+    tournamentData: state.tournament.tournamentData,
+    matches: state.matches,
+    teams: state.teams,
+    players: state.players
+  };
+};
+
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(MainControllerScreen)
+);

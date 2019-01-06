@@ -7,10 +7,12 @@ import * as Routes from "./routes";
 import SelectTournament from "./screens/controller/SelectTounament";
 import Monitor from "./screens/display/Monitor";
 import Socket from "./socket/Socket";
+import CreateTournament from "./screens/controller/CreateTournament";
+import { SERVER_IP, SOCKET_PORT } from "./constants";
 
 class App extends Component {
   componentWillMount() {
-    Socket.initSocket("192.168.1.2", 8000);
+    Socket.initSocket(SERVER_IP, SOCKET_PORT);
   }
   render() {
     return (
@@ -40,6 +42,11 @@ class App extends Component {
             exact
             path={Routes.MONITOR_DISPLAY}
             component={() => <Monitor />}
+          />
+          <Route
+            exact
+            path={Routes.CREATE_TOURNAMENT}
+            component={() => <CreateTournament />}
           />
         </Switch>
       </div>

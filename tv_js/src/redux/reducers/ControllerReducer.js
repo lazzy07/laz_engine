@@ -1,6 +1,3 @@
-import { GET_CONTROLLER_LIST } from "../actions/ControllerActions";
-import Socket from "../../socket/Socket";
-
 const initialState = {
   controllerList: []
 };

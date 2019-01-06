@@ -3,48 +3,35 @@ import { fontColor } from "../../constants";
 import { Gradient } from "../../components/Gradient";
 import { connect } from "react-redux";
 import { getTournamentList } from "../../redux/actions/TournamentActions";
-
-const data = [
-  {
-    name: "LOL 01",
-    type: "football"
-  },
-  {
-    name: "LOL 02",
-    type: "cricket"
-  },
-  {
-    name: "LOL 02",
-    type: "rugby"
-  },
-  {
-    name: "Tournament Big",
-    type: "football"
-  },
-  {
-    name: "Tournament Big 124134",
-    type: "cricket"
-  },
-  {
-    name: "LOL 02",
-    type: "rugby"
-  }
-];
+import { Button } from "../../components/controller/Button";
+import { withRouter } from "react-router-dom";
 
 class SelectTournament extends Component {
   componentDidMount() {
     this.props.getTournamentList();
   }
 
+  createTournament = () => {
+    this.props.history.push("create_tournament");
+  };
+
+  onSelectTournament = id => {
+    this.props.history.push("controller/" + id);
+  };
+
   renderTournamentList = data => {
     if (data) {
-      return data.map((ele, index) => {
+      return data.map(ele => {
         return (
           <div
-            key={index}
+            id={ele._id}
+            key={ele._id}
+            onClick={() => this.onSelectTournament(ele._id)}
             className="pressable"
             style={{
               padding: "5px",
+              paddingLeft: "50px",
+              paddingRight: "50px",
               marginBottom: "10px",
               borderBottom: "6px solid rgba(237, 0, 247, 1)",
               backgroundColor: "rgba(255,255,255,0.05)"
@@ -146,7 +133,16 @@ class SelectTournament extends Component {
               overflowY: "scroll"
             }}
           >
-            <div>{this.renderTournamentList(data)}</div>
+            <div>{this.renderTournamentList(this.props.tournamentList)}</div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            <Button title="Create New" onClick={this.createTournament} />
           </div>
         </div>
       </div>
@@ -162,7 +158,9 @@ const mapDispatchToProps = {
   getTournamentList
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SelectTournament);
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(SelectTournament)
+);

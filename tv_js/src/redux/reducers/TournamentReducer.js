@@ -1,19 +1,56 @@
-import { GET_TOURNAMENT_LIST } from "../actions/TournamentActions";
-import Socket from "../../socket/Socket";
+import {
+  TOURNAMENT_LIST,
+  TOURNAMENT_DATA,
+  SET_TOURNAMENT_CONFIG_DATA,
+  setTournamentData,
+  CHANGE_TOURNAMENT_CONFIG_DATA
+} from "../actions/TournamentActions";
 
 const initialState = {
-  tournamentList: []
+  tournamentList: [],
+  tournamentData: {}
 };
 
 export const tournamentReducer = (state = initialState, action) => {
   switch (action.type) {
-    case GET_TOURNAMENT_LIST:
-      return dispatch => {
-        console.log("run");
-        Socket.socket.emit(GET_TOURNAMENT_LIST);
+    case TOURNAMENT_LIST:
+      return {
+        ...state,
+        tournamentList: action.payload
+      };
+
+    case TOURNAMENT_DATA:
+      return {
+        ...state,
+        tournamentData: action.payload
+      };
+
+    case SET_TOURNAMENT_CONFIG_DATA:
+      let data = {
+        ...state.tournamentData,
+        config: {
+          ...action.payload
+        }
+      };
+      setTournamentData(data);
+      return {
+        ...state,
+        tournamentData: data
+      };
+
+    case CHANGE_TOURNAMENT_CONFIG_DATA:
+      return {
+        ...state,
+        tournamentData: {
+          ...state.tournamentData,
+          config: {
+            ...state.tournamentData.config,
+            ...action.payload
+          }
+        }
       };
 
     default:
-      return initialState;
+      return state;
   }
 };

@@ -5,6 +5,7 @@ export const Button = props => {
     <div
       onClick={props.onClick}
       className="waves-effect waves-light btn defColorButton"
+      disabled={props.disabled}
     >
       {props.title}
     </div>

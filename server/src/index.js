@@ -1,27 +1,35 @@
 import Socket from "./classes/Socket";
-import ConsoleStylingClass from "./classes/Console";
+import ConsoleStylingClass, {printC, printError} from "./classes/Console";
 import Database from "./database/Database";
 
 const databaseConnection = "mongodb://127.0.0.1:27017/laz_engine";
 
-let monitorList = [];
-let controllerList = [];
+let connectionList = [];
 
 /**
- * Add monitor to monitors list
- * @param {Monitor} monitor monitor to be added to the array
+ * Add socket to connections list
+ * @param {Socket} socket socket to be added to the array
  */
-export const addToMonitorList = (monitor) => {
-  monitorList.push(monitor);
+export const addToSocketList = (socket) => {
+  connectionList.push(socket);
+}
+
+export const removeFromSocketList = (socket) => {
+  printError(socket.id,"server","CLIENT_DISCONNECT");
+  connectionList.splice(connectionList.indexOf(socket), 1);
 }
 
 /**
- * Add controller to controllers list
- * @param {Controller} controller controller to be added to the array
+ * Sending data to all the sockets
+ * @param {Object} data data to be sent as {type: string, payload: data}
  */
-export const addToControllerList = (controller) => {
-  controllerList.push(controller);
+export const sendToSockets = (data) => {
+  for(let i=0; i<connectionList.length; i++){
+    printC("server", connectionList[i].id, data.type);
+    connectionList[i].emit(data.type, data.payload);
+  }
 }
+
 
 
 //Main Class

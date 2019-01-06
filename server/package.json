@@ -4,6 +4,8 @@
   "description": "Manage Sports Data",
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
+    "colors": "^1.3.3",
+    "console.table": "^0.10.0",
     "mongoose": "^5.4.0",
     "socket.io": "^2.2.0"
   },

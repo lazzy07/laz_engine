@@ -1,3 +1,6 @@
+export const SERVER_IP = "192.168.1.3";
+export const SOCKET_PORT = 8000;
+
 export const DEFAULT_GRADIENT =
   "linear-gradient(to right bottom, #010040, rgba(0,0,0,0),rgba(0,0,0,0),rgba(0,0,0,0),rgba(0,0,0,0),rgba(0,0,0,0), rgba(237,0,247, 0.5))";
 
