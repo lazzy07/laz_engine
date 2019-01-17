@@ -1,7 +1,7 @@
 const io = require('socket.io')();
-import { ADD_MONITOR, ADD_CONTROLLER, GET_TOURNAMENT_LIST, TOURNAMENT_LIST, CREATE_TOURNAMENT, CREATE_TOURNAMENT_OK, CREATE_TOURNAMENT_ERROR, GET_TOURNAMENT_DATA, TOURNAMENT_DATA, SET_TOURNAMENT_DATA, SET_TEAM_DATA, TEAM_DATA, PLAYER_LIST, SAVE_TEAM_OK, MATCH_LIST, GET_MATCH_LIST, GET_PLAYER_LIST, GET_TEAM_DATA, SET_MATCH_DATA_OK, SET_MATCH_DATA, SET_PLAYER_DATA, SET_PLAYER_DATA_OK } from "../data_types";
+import { ADD_MONITOR, ADD_CONTROLLER, GET_TOURNAMENT_LIST, TOURNAMENT_LIST, CREATE_TOURNAMENT, CREATE_TOURNAMENT_OK, CREATE_TOURNAMENT_ERROR, GET_TOURNAMENT_DATA, TOURNAMENT_DATA, SET_TOURNAMENT_DATA, SET_TEAM_DATA, TEAM_DATA, PLAYER_LIST, SAVE_TEAM_OK, MATCH_LIST, GET_MATCH_LIST, GET_PLAYER_LIST, GET_TEAM_DATA, SET_MATCH_DATA_OK, SET_MATCH_DATA, SET_PLAYER_DATA, SET_PLAYER_DATA_OK, REGISTER_MONITOR, NO_CONTROLLERS, CONTROLLERS_AVAILABLE, SET_TYPE } from "../data_types";
 import Monitor from "./Monitor";
-import {addToSocketList, removeFromSocketList, sendToSockets} from "../index"
+import {addToSocketList, removeFromSocketList, sendToSockets, getConnectionList, checkForControllers} from "../index";
 import Controller from "./Controller";
 import Database from "../database/Database";
 import { printC, printError } from "./Console";
@@ -14,6 +14,7 @@ export default class Socket{
     io.on('connection', (client) => {
       printC(client.id, "server", "CLIENT_INITIATE");
       addToSocketList(client);
+      
       
       client.on(GET_TOURNAMENT_LIST, ()=> {
         printC(client.id, "server", GET_TOURNAMENT_LIST)
@@ -29,8 +30,15 @@ export default class Socket{
       })
   
       client.on(ADD_CONTROLLER, () => {
-        let c = new Controller(client);
-        addToControllerList(c);
+        // let c = new Controller(client);
+        // addToControllerList(c);
+        client.type = "controller"
+        let controllersExists = checkForControllers();
+        if(!controllersExists){
+          sendToSockets({type: NO_CONTROLLERS});
+        }else{
+          sendToSockets({type: CONTROLLERS_AVAILABLE})
+        }
       })
 
       client.on(CREATE_TOURNAMENT, (data) => {
@@ -136,10 +144,35 @@ export default class Socket{
         }).catch(err => {
           printError("database", "server", SET_PLAYER_DATA);
         })
-      })
+      });
+
+      /**
+       * Monitor Data Handling
+       */
+      client.on(REGISTER_MONITOR, data => {
+        if(data.name){
+          client.type="monitor";
+          printC(client.id, "server", REGISTER_MONITOR)
+          let controllersExists = checkForControllers();
+
+          if(!controllersExists){
+            sendToSockets({type: NO_CONTROLLERS});
+          }else{
+            sendToSockets({type: CONTROLLERS_AVAILABLE})
+          }
+        }else{
+          printError(client.id, "server", "MONITOR_NAME_NOT_FOUND")
+        }
+      });
       
       client.on("disconnect", () => {
-        removeFromSocketList(client)
+        removeFromSocketList(client);
+        let controllersExists = checkForControllers();
+        if(!controllersExists){
+          sendToSockets({type: NO_CONTROLLERS});
+        }else{
+          sendToSockets({type: CONTROLLERS_AVAILABLE})
+        }
       })
     });
 

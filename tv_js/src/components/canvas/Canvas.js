@@ -12,6 +12,7 @@ class Canvas extends Component {
       },
       viewPortPos: { x: 0, y: 0 },
       scale: 1,
+      scalefac: 1,
       scaleSpeed: {
         up: SCALE_SPEED.up,
         down: SCALE_SPEED.down
@@ -94,11 +95,17 @@ class Canvas extends Component {
     let sc = this.state.scale;
     let canScale = true;
 
+    let upScale = this.getScaleCount().up;
+    let downScale = this.getScaleCount().down;
+
     if (scale === this.state.scaleSpeed.up) {
       if (sc >= this.state.scaleClip.max) {
         canScale = false;
       } else {
+        let scaleDiff = upScale + 1 - downScale;
+        let scalefac = Math.pow(SCALE_SPEED.up, scaleDiff);
         this.setState({
+          scalefac,
           scale: this.state.scale + 1,
           scaleCount: {
             ...this.state.scaleCount,
@@ -110,8 +117,11 @@ class Canvas extends Component {
       if (sc <= this.state.scaleClip.min) {
         canScale = false;
       } else {
+        let scaleDiff = upScale - (downScale + 1);
+        let scalefac = Math.pow(SCALE_SPEED.up, scaleDiff);
         this.setState({
           scale: this.state.scale - 1,
+          scalefac,
           scaleCount: {
             ...this.state.scaleCount,
             down: this.state.scaleCount.down + 1
@@ -142,6 +152,10 @@ class Canvas extends Component {
    */
   getScaleCount = () => {
     return this.state.scaleCount;
+  };
+
+  getScaleFac = () => {
+    return this.state.scalefac;
   };
 
   componentDidMount() {

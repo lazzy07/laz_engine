@@ -7,6 +7,7 @@ let matchSchema = new mongoose.Schema({
   config: [],
   time: {type: Number, default: 0},
   data: Object,
+  group: String, //A, B, C, .... or || semi, quarter, final
   tournament: String
 })
 

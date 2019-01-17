@@ -13,6 +13,7 @@ class AddNewMatch extends Component {
     this.state = {
       _id: null,
       matchName: "",
+      group: "",
       selected1: null,
       selected2: null
     };
@@ -77,12 +78,14 @@ class AddNewMatch extends Component {
         _id: data._id,
         selected1: getRealData("_id", data.teams[0], teams),
         selected2: getRealData("_id", data.teams[1], teams),
-        matchName: data.match
+        matchName: data.match || "",
+        group: data.group || ""
       });
     } else {
       this.setState({
         _id: null,
         matchName: "",
+        group: "",
         selected1: null,
         selected2: null
       });
@@ -108,7 +111,7 @@ class AddNewMatch extends Component {
       return (
         <div className="row">
           <div className="col s12">
-            <div className="col offset-m2 m8">
+            <div className="col offset-m2 s12 m8">
               <Inputbox
                 active
                 color="grey"
@@ -117,6 +120,15 @@ class AddNewMatch extends Component {
                 id="match_name"
                 value={this.state.matchName}
                 onChange={e => this.onChange(e)}
+              />
+              <Inputbox
+                active
+                id={"group"}
+                name="group"
+                onChange={e => this.onChange(e)}
+                value={this.state.group}
+                title={"Group (A, B, C or semi, quarter, final)"}
+                color="grey"
               />
             </div>
           </div>

@@ -72,3 +72,11 @@ export const PLAYER_LIST = "PLAYER_LIST";
 export const MATCH_LIST = "MATCH_LIST";
 export const SAVE_TEAM_OK = "SAVE_TEAM_OK";
 
+
+/**
+ * Monitor Data
+ */
+export const CONTROLLERS_AVAILABLE = "CONTROLLERS_AVAILABLE";
+export const NO_CONTROLLERS = "NO_CONTROLLERS";
+export const REGISTER_MONITOR = "REGISTER_MONITOR";
+export const SET_TYPE = "SET_TYPE"; //setting background video type football || cricket || rugby

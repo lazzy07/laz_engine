@@ -10,6 +10,7 @@ class AddNewTeam extends Component {
 
     this.state = {
       teamName: "",
+      group: "",
       teamMembers: []
     };
   }
@@ -151,7 +152,8 @@ class AddNewTeam extends Component {
     }
 
     this.setState({
-      teamName: data.teamName,
+      teamName: data.teamName || "",
+      group: data.group || "",
       teamMembers
     });
   };
@@ -171,6 +173,7 @@ class AddNewTeam extends Component {
     this.setState({
       _id: null,
       teamName: "",
+      group: "",
       teamMembers
     });
   };
@@ -195,6 +198,15 @@ class AddNewTeam extends Component {
             onChange={e => this.onChange(e)}
             value={this.state.teamName}
             title={"Team Name"}
+            color="grey"
+          />
+          <Inputbox
+            active
+            id={"group"}
+            name="group"
+            onChange={e => this.onChange(e)}
+            value={this.state.group}
+            title={"Group (optional)"}
             color="grey"
           />
           <table className="striped">

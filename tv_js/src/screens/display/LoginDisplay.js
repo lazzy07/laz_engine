@@ -21,6 +21,7 @@ class LoginDisplay extends Component {
 
   onClick = () => {
     if (this.state.monitorName !== "") {
+      localStorage.setItem("monitorName", this.state.monitorName);
       this.props.history.push(MONITOR_DISPLAY);
     }
   };

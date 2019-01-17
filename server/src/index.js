@@ -19,6 +19,24 @@ export const removeFromSocketList = (socket) => {
   connectionList.splice(connectionList.indexOf(socket), 1);
 }
 
+export const getConnectionList = (socket) => {
+  return connectionList
+}
+
+/**
+ * Checking wether controllers available or not
+ * @returns {Boolean} true if controllers available
+ */
+export const checkForControllers = () => {
+  let conList = getConnectionList();
+  for(let i=0; i<conList.length; i++){
+    if(conList[i].type !== "monitor"){
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * Sending data to all the sockets
  * @param {Object} data data to be sent as {type: string, payload: data}

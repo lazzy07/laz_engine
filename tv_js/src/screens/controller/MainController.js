@@ -8,6 +8,7 @@ import { getTournamentData } from "../../redux/actions/TournamentActions";
 import { getPlayerList } from "../../redux/actions/PlayerActions";
 import { getTeamData } from "../../redux/actions/TeamActions";
 import { getMatchesList } from "../../redux/actions/MatchActions";
+import Socket from "../../socket/Socket";
 
 class MainControllerScreen extends Component {
   constructor(props) {
@@ -50,6 +51,7 @@ class MainControllerScreen extends Component {
     this.props.getMatchesList(tournament);
     this.props.getPlayerList(tournament);
     this.props.getTeamData(tournament);
+    Socket.socket.emit("ADD_CONTROLLER");
   }
 
   /* eslint-disable no-alert, no-console */

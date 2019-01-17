@@ -156,7 +156,7 @@ class Database{
    */
   static setTeamData = data => {
     return new Promise((resolve, reject) => {
-      let {teamMembers, teamName, tournament, _id} = data;
+      let {teamMembers, teamName, tournament, _id, group} = data;
       let savedMembers = [];
 
       let promise = new Promise((resolve, reject) => {
@@ -194,7 +194,8 @@ class Database{
         if(_id){
           teamDB.findOne({_id}).then(foundData => {
             if(foundData){
-              foundData.teamName = data.teamName
+              foundData.teamName = data.teamName;
+              foundData.group = data.group;
               foundData.players = savedMembers;
               foundData.save().then(savedData => {
                 resolve(savedData);
@@ -204,7 +205,7 @@ class Database{
             }
           })
         }else{
-          let team = new teamDB({teamName, tournament, players: savedMembers});
+          let team = new teamDB({teamName, tournament, group, players: savedMembers});
           team.save().then(savedData => {
             resolve(savedData);
           }).catch(err => {
@@ -227,12 +228,13 @@ class Database{
 
   static setMatchData = (data) => {
     return new Promise((resolve, reject) => {
-      let {_id, tournamentId, matchName, selected1, selected2} = data;
+      let {_id, tournamentId, matchName, group, selected1, selected2} = data;
       if(_id){
         matchDB.findOne({_id}).then(foundData => {
           foundData.teams = [selected1._id, selected2._id],
           foundData.match = matchName;
           foundData.tournament = tournamentId;
+          foundData.group = group;
 
           foundData.save().then(savedData => {
             resolve(savedData)
@@ -244,6 +246,7 @@ class Database{
         let newMatch = new matchDB({
           match: matchName,
           tournament: tournamentId,
+          group,
           teams: [selected1._id, selected2._id]
         })
 

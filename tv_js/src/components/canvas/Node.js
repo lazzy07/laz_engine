@@ -1,10 +1,4 @@
-import {
-  HEADER_COLOR,
-  HEADER_HEIGHT,
-  NODE_WIDTH,
-  NODE_HEIGHT,
-  SCALE_SPEED
-} from ".";
+import { HEADER_COLOR, HEADER_HEIGHT, NODE_WIDTH, NODE_HEIGHT } from ".";
 
 class Node {
   constructor(
@@ -25,6 +19,8 @@ class Node {
     this.width = width;
     this.height = height;
     this.headerHeight = headerHeight;
+    this.canMove = false;
+    this.canSelect = false;
   }
 
   /**
@@ -44,12 +40,7 @@ class Node {
     let vX = this.canvas.getViewportPos().x;
     let vY = this.canvas.getViewportPos().y;
 
-    let upScale = this.canvas.getScaleCount().up;
-    let downScale = this.canvas.getScaleCount().down;
-
-    let scaleDiff = upScale - downScale;
-
-    let scalefac = Math.pow(SCALE_SPEED.up, scaleDiff);
+    let scalefac = this.canvas.getScaleFac();
 
     let off = this.canvas.getDivPos();
     if (
@@ -59,31 +50,72 @@ class Node {
       (y + this.headerHeight - vY) * scalefac > mouseY - off
     ) {
       //code goes here
+      this.canMove = true;
+    } else {
+      this.canMove = false;
+    }
+  };
+
+  isNodeSelectable = ({ mouseX, mouseY }) => {
+    let { x, y } = this.position;
+    let vX = this.canvas.getViewportPos().x;
+    let vY = this.canvas.getViewportPos().y;
+
+    let scalefac = this.canvas.getScaleFac();
+
+    let off = this.canvas.getDivPos();
+    if (
+      (x + vX) * scalefac < mouseX &&
+      (y + vY) * scalefac < mouseY - off &&
+      (x + this.width + vX) * scalefac > mouseX &&
+      (y + this.height + vY) * scalefac > mouseY - off
+    ) {
+      //code goes here
+      this.canSelect = true;
+    } else {
+      this.canSelect = false;
     }
   };
 
   /**
+   * Get node can be selected or not
+   * @returns {Boolean} says wether the node can be selected or not
+   */
+  getCanSelect = () => {
+    return this.canSelect;
+  };
+
+  /**
+   * Get nodes current position
+   * @returns {Object} object with x, y coordinates of the nodes position
+   */
+  getPosition = () => {};
+
+  /**
    * Drawing a node on the canvas
-   * @param {Object} data data to be drawn {header: {text: "", noodle: null, description: ""}, body: [{text: "", noodle: null, description: ""}]}
-   * @param {String} color color of the node
-   * noodle - {node}
    */
   render = ({ x, y }) => {
     if (this.canvas) {
-      this.isNodeMovable({ mouseX: x, mouseY: y });
+      // this.isNodeSelectable({ mouseX: x, mouseY: y });
+      // this.isNodeMovable({ mouseX: x, mouseY: y });
       let ctx = this.canvas.getContext2d();
 
       //Outliner
       ctx.beginPath();
       ctx.strokeStyle = this.color;
-      ctx.rect(this.position.x, this.position.y, this.width, this.height);
+      ctx.rect(x, y, this.width, this.height);
       ctx.stroke();
 
       //Header Background
       ctx.beginPath();
-      ctx.rect(this.position.x, this.position.y, this.width, this.headerHeight);
+      ctx.rect(x, y, this.width, this.headerHeight);
       ctx.fillStyle = this.color;
       ctx.fill();
+
+      //Header Text
+      ctx.font = "20px Arial";
+      ctx.fillStyle = this.color;
+      ctx.fillText("this.data.header.title");
     } else {
       console.log("Canvas not loaded");
     }

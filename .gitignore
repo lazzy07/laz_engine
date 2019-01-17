@@ -5,3 +5,5 @@ tv_js/public/dependencies/videos/background_videos
 server/dist
 
 tv_js/build
+
+tv_js/src/firebase/config.js
