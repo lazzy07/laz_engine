@@ -4,7 +4,7 @@ let MATCH_DATABASE = require("../../constants").MATCH_DATABASE;
 let matchSchema = new mongoose.Schema({
   match: String,
   teams: [],
-  config: {},
+  config: Object,
   time: {type: Number, default: 0},
   data: Object,
   group: String, //A, B, C, .... or || semi, quarter, final

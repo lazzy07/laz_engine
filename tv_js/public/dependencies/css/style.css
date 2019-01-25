@@ -78,3 +78,25 @@ h1 {
   margin: 0;
   padding: 0;
 }
+
+.st0 {
+  fill: #FFFFFF;
+}
+
+.st1 {
+  fill: #00A99D;
+}
+
+.st2 {
+  fill: none;
+  stroke: #00A99D;
+  stroke-width: 5;
+  stroke-miterlimit: 10;
+}
+
+.st3 {
+  fill: none;
+  stroke: #00A99D;
+  stroke-width: 4;
+  stroke-miterlimit: 10;
+}

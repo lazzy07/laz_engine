@@ -7,3 +7,5 @@ server/dist
 tv_js/build
 
 tv_js/src/firebase/config.js
+
+server/src/firebase/config.js

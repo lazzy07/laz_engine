@@ -1,8 +1,7 @@
 const io = require('socket.io')();
-import { ADD_MONITOR, ADD_CONTROLLER, GET_TOURNAMENT_LIST, TOURNAMENT_LIST, CREATE_TOURNAMENT, CREATE_TOURNAMENT_OK, CREATE_TOURNAMENT_ERROR, GET_TOURNAMENT_DATA, TOURNAMENT_DATA, SET_TOURNAMENT_DATA, SET_TEAM_DATA, TEAM_DATA, PLAYER_LIST, SAVE_TEAM_OK, MATCH_LIST, GET_MATCH_LIST, GET_PLAYER_LIST, GET_TEAM_DATA, SET_MATCH_DATA_OK, SET_MATCH_DATA, SET_PLAYER_DATA, SET_PLAYER_DATA_OK, REGISTER_MONITOR, NO_CONTROLLERS, CONTROLLERS_AVAILABLE, FILE_LIST, SET_MONITOR, SET_MATCH_CONFIG } from "../data_types";
+import { ADD_MONITOR, ADD_CONTROLLER, GET_TOURNAMENT_LIST, TOURNAMENT_LIST, CREATE_TOURNAMENT, CREATE_TOURNAMENT_OK, CREATE_TOURNAMENT_ERROR, GET_TOURNAMENT_DATA, TOURNAMENT_DATA, SET_TOURNAMENT_DATA, SET_TEAM_DATA, TEAM_DATA, PLAYER_LIST, SAVE_TEAM_OK, MATCH_LIST, GET_MATCH_LIST, GET_PLAYER_LIST, GET_TEAM_DATA, SET_MATCH_DATA_OK, SET_MATCH_DATA, SET_PLAYER_DATA, SET_PLAYER_DATA_OK, REGISTER_MONITOR, NO_CONTROLLERS, CONTROLLERS_AVAILABLE, FILE_LIST, SET_MONITOR, SET_MATCH_CONFIG, SET_MATCH_CONFIG_OK } from "../data_types";
 import Monitor from "./Monitor";
-import {addToSocketList, removeFromSocketList, sendToSockets, getConnectionList, checkForControllers} from "../index";
-import Controller from "./Controller";
+import {addToSocketList, removeFromSocketList, sendToSockets, checkForControllers} from "../index";
 import Database from "../database/Database";
 import { printC, printError } from "./Console";
 import FileReader from "./FileReader";
@@ -151,8 +150,8 @@ export default class Socket{
       client.on(SET_MATCH_CONFIG, data => {
         printC(client.id, "server", SET_MATCH_CONFIG);
         Database.setMatchConfig(data).then(savedData => {
-          Database.getMatchData(data.tournamentId).then(foundData => {
-            sendToSockets({type: MATCH_LIST, payload: foundData})
+          Database.getMatchData(data._id).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
           }).catch(err => {
             printError("database", "server", MATCH_LIST)
           })

@@ -75,7 +75,6 @@ export const SAVE_TEAM_OK = "SAVE_TEAM_OK";
 export const SET_MATCH_CONFIG = "SET_MATCH_CONFIG";
 
 
-
 /**
  * Monitor Data
  */

@@ -5,6 +5,7 @@ import { withRouter } from "react-router-dom";
 import { getRealData } from "../../../../functions";
 import MatchConfig from "./MatchConfig";
 import CricketMatchController from "./CricketMatchController";
+import { startMatch } from "../../../../redux/actions/MatchActions";
 
 class MatchController extends Component {
   constructor(props) {
@@ -69,26 +70,47 @@ class MatchController extends Component {
   onSubmit = state => {
     if (state.type && state.firstInnningBat !== "not selected") {
       if (this.state.selected !== "not selected") {
+        let paths = this.props.location.pathname.split("/");
+        let tournamentId = paths[paths.length - 1];
+
+        this.props.startMatch({
+          _id: tournamentId,
+          match: this.state.selected,
+          data: state
+        });
       }
     }
   };
 
   renderMatchController = selectedMatch => {
     if (selectedMatch !== "not selected") {
-      if (!selectedMatch.config) {
-        return (
-          <MatchConfig
-            teams={this.props.teams}
-            matches={this.props.matches}
-            selected={this.state.selected}
-            onSubmit={this.onSubmit}
-          />
-        );
+      let selMatch = getRealData("_id", selectedMatch, this.props.matches);
+      if (selMatch) {
+        if (!selMatch.config) {
+          return (
+            <MatchConfig
+              teams={this.props.teams}
+              matches={this.props.matches}
+              selected={this.state.selected}
+              onSubmit={this.onSubmit}
+            />
+          );
+        } else {
+          return <CricketMatchController />;
+        }
       } else {
-        return <CricketMatchController />;
+        return (
+          <div>
+            <h2>Loading...</h2>
+          </div>
+        );
       }
     } else {
-      return <div />;
+      return (
+        <div>
+          <h6>Please select a match</h6>
+        </div>
+      );
     }
   };
 
@@ -133,6 +155,13 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  startMatch
+};
 
-export default withRouter(connect(mapStateToProps)(MatchController));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(MatchController)
+);

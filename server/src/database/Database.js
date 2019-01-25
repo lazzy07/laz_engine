@@ -254,6 +254,10 @@ class Database{
     })
   }
 
+  /**
+   * Get team data from the local database
+   * @param {String} tournamentId id of the tournament
+   */
   static getTeamData = tournamentId => {
     return new Promise((resolve, reject) => {
       teamDB.find({tournament: tournamentId}).then(foundData => {
@@ -264,6 +268,10 @@ class Database{
     })
   }
 
+  /**
+   * Set match data (initialize the match)
+   * @param {Object} data match data
+   */
   static setMatchData = (data) => {
     return new Promise((resolve, reject) => {
       let {_id, tournamentId, matchName, group, selected1, selected2} = data;
@@ -310,25 +318,26 @@ class Database{
   }
 
   static setMatchConfig = (data) => {
-    const {_id, config} = data;
-
-    matchDB.findOne(_id).then(foundData => {
-      return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
+      const {_id, match} = data;
+      matchDB.findOne({_id: match}).then(foundData => {
         if(foundData){
-          foundData.config = config;
-  
+          foundData.config = data.data;
           foundData.save().then(savedData => {
             firestore
               .collection("users")
               .doc("antiraggers15")
               .collection("matches")
-              .doc(_id)
-              .update({config: data});
+              .doc(match)
+              .update({config: data.data});
 
             resolve(savedData)
           }).catch(err => {
-            printError("database", "server", "ERR:::" + err.message)
+            printError("database", "server", "ERR:::" + err.message);
+            reject(err);
           })
+        }else{
+          printError("database", "server", "Match Not Found to updt:config");
         }
       })
     })
