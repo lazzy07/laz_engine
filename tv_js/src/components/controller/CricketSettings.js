@@ -7,6 +7,7 @@ import {
   setTournamentConfigData,
   setTournamentConfigState
 } from "../../redux/actions/TournamentActions";
+import MyDropzone from "./DropZone";
 
 class CricketSettings extends Component {
   // constructor(props) {
@@ -41,16 +42,34 @@ class CricketSettings extends Component {
     });
   };
 
+  componentDidMount = () => {
+    this.drop.setImage(this.props.data.logo);
+  };
+
   render() {
     return (
       <div className="row">
         <div className="col s12 m4 offset-m4">
+          <div>
+            <h5>Common Settings</h5>
+            <MyDropzone ref={drop => (this.drop = drop)} />
+          </div>
+          <h5 style={{ paddingBottom: "10px" }}>Cricket Settings</h5>
+          <Inputbox
+            onChange={e => this.onChange(e)}
+            title="Description"
+            name="description"
+            id="description"
+            value={this.props.data.description || ""}
+            color={"black"}
+            active
+          />
           <Inputbox
             onChange={e => this.onChange(e)}
             title="Balls Per Over"
             name="ballsPerOver"
             id="ballsPerOver"
-            value={this.props.data.ballsPerOver}
+            value={this.props.data.ballsPerOver || ""}
             color={"black"}
             active
           />
@@ -59,7 +78,7 @@ class CricketSettings extends Component {
             title="Overs"
             name="overs"
             id="overs"
-            value={this.props.data.overs}
+            value={this.props.data.overs || ""}
             color={"black"}
             active
           />
@@ -68,7 +87,7 @@ class CricketSettings extends Component {
             title="Players per team"
             name="playersPerTeam"
             id="playersPerTeam"
-            value={this.props.data.playersPerTeam}
+            value={this.props.data.playersPerTeam || ""}
             color={"black"}
             active
           />
@@ -77,7 +96,7 @@ class CricketSettings extends Component {
             title="Team size"
             name="teamSize"
             id="teamSize"
-            value={this.props.data.teamSize}
+            value={this.props.data.teamSize || ""}
             color={"black"}
             active
           />
@@ -86,7 +105,7 @@ class CricketSettings extends Component {
             title="Points awarded per win"
             name="pointsPerWin"
             id="pointsPerWin"
-            value={this.props.data.pointsPerWin}
+            value={this.props.data.pointsPerWin || ""}
             color={"black"}
             active
           />
@@ -95,7 +114,7 @@ class CricketSettings extends Component {
             title="Points awarded per draw"
             name="pointsPerDraw"
             id="pointsPerDraw"
-            value={this.props.data.pointsPerDraw}
+            value={this.props.data.pointsPerDraw || ""}
             color={"black"}
             active
           />
@@ -104,7 +123,7 @@ class CricketSettings extends Component {
             title="Points awarded per loss"
             name="pointsPerLoss"
             id="pointsPerLoss"
-            value={this.props.data.pointsPerLoss}
+            value={this.props.data.pointsPerLoss.toString() || ""}
             color={"black"}
             active
           />
@@ -113,7 +132,7 @@ class CricketSettings extends Component {
             title="Runs awarded per wide"
             name="pointsPerWide"
             id="pointsPerWide"
-            value={this.props.data.pointsPerWide}
+            value={this.props.data.pointsPerWide || ""}
             color={"black"}
             active
           />
@@ -122,7 +141,7 @@ class CricketSettings extends Component {
             title="Runs awarded per noball"
             name="pointsPerNoball"
             id="pointsPerNoball"
-            value={this.props.data.pointsPerNoball}
+            value={this.props.data.pointsPerNoball || ""}
             color={"black"}
             active
           />
@@ -131,7 +150,7 @@ class CricketSettings extends Component {
             title="Runs awarded per boundary"
             name="pointsPerBoundary"
             id="pointsPerBoundary"
-            value={this.props.data.pointsPerBoundary}
+            value={this.props.data.pointsPerBoundary || ""}
             color={"black"}
             active
           />
@@ -140,7 +159,7 @@ class CricketSettings extends Component {
             title="Runs awarded per six"
             name="pointsPerSix"
             id="pointsPerSix"
-            value={this.props.data.pointsPerSix}
+            value={this.props.data.pointsPerSix || ""}
             color={"black"}
             active
           />
@@ -158,7 +177,12 @@ class CricketSettings extends Component {
           />
           <Button
             title="Confirm"
-            onClick={() => this.props.setTournamentConfigData(this.props.data)}
+            onClick={() =>
+              this.props.setTournamentConfigData({
+                ...this.props.data,
+                logo: this.drop.getImage()
+              })
+            }
           />
         </div>
       </div>

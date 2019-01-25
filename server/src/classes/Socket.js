@@ -1,10 +1,12 @@
 const io = require('socket.io')();
-import { ADD_MONITOR, ADD_CONTROLLER, GET_TOURNAMENT_LIST, TOURNAMENT_LIST, CREATE_TOURNAMENT, CREATE_TOURNAMENT_OK, CREATE_TOURNAMENT_ERROR, GET_TOURNAMENT_DATA, TOURNAMENT_DATA, SET_TOURNAMENT_DATA, SET_TEAM_DATA, TEAM_DATA, PLAYER_LIST, SAVE_TEAM_OK, MATCH_LIST, GET_MATCH_LIST, GET_PLAYER_LIST, GET_TEAM_DATA, SET_MATCH_DATA_OK, SET_MATCH_DATA, SET_PLAYER_DATA, SET_PLAYER_DATA_OK, REGISTER_MONITOR, NO_CONTROLLERS, CONTROLLERS_AVAILABLE, SET_TYPE } from "../data_types";
+import { ADD_MONITOR, ADD_CONTROLLER, GET_TOURNAMENT_LIST, TOURNAMENT_LIST, CREATE_TOURNAMENT, CREATE_TOURNAMENT_OK, CREATE_TOURNAMENT_ERROR, GET_TOURNAMENT_DATA, TOURNAMENT_DATA, SET_TOURNAMENT_DATA, SET_TEAM_DATA, TEAM_DATA, PLAYER_LIST, SAVE_TEAM_OK, MATCH_LIST, GET_MATCH_LIST, GET_PLAYER_LIST, GET_TEAM_DATA, SET_MATCH_DATA_OK, SET_MATCH_DATA, SET_PLAYER_DATA, SET_PLAYER_DATA_OK, REGISTER_MONITOR, NO_CONTROLLERS, CONTROLLERS_AVAILABLE, FILE_LIST, SET_MONITOR, SET_MATCH_CONFIG } from "../data_types";
 import Monitor from "./Monitor";
 import {addToSocketList, removeFromSocketList, sendToSockets, getConnectionList, checkForControllers} from "../index";
 import Controller from "./Controller";
 import Database from "../database/Database";
 import { printC, printError } from "./Console";
+import FileReader from "./FileReader";
+import { Colors } from "./Colors";
 export default class Socket{
   /**
    * Initialize socket server
@@ -44,7 +46,7 @@ export default class Socket{
       client.on(CREATE_TOURNAMENT, (data) => {
         Database.createTournament(data).then(savedData => {
           Database.getTournamentList().then((tournaments) => {
-            sendToControllers({type: TOURNAMENT_LIST, data: tournaments});
+            sendToSockets({type: TOURNAMENT_LIST, data: tournaments});
             printC("server", client.id, CREATE_TOURNAMENT_OK);
             client.emit(CREATE_TOURNAMENT_OK)
           }).catch(err => {
@@ -139,12 +141,23 @@ export default class Socket{
           Database.getPlayerData(data.tournamentId).then(foundData => {
             sendToSockets({type: PLAYER_LIST, payload: foundData})          
           }).catch(err => {
-            printError("database", "server", PLAYER_LIST)
+            printError("database", "server", PLAYER_LIST);
           })
         }).catch(err => {
           printError("database", "server", SET_PLAYER_DATA);
         })
       });
+
+      client.on(SET_MATCH_CONFIG, data => {
+        printC(client.id, "server", SET_MATCH_CONFIG);
+        Database.setMatchConfig(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData})
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      })
 
       /**
        * Monitor Data Handling
@@ -152,18 +165,43 @@ export default class Socket{
       client.on(REGISTER_MONITOR, data => {
         if(data.name){
           client.type="monitor";
-          printC(client.id, "server", REGISTER_MONITOR)
+          client.name = data.name;
+          printC(client.id, "server", REGISTER_MONITOR + " " +data.name);
+          
+          FileReader.getFolderContent("../tv_js/public/dependencies/videos/background_videos/cricket").then(cricket => {
+            FileReader.getFolderContent("../tv_js/public/dependencies/videos/background_videos/football").then(football => {
+              FileReader.getFolderContent("../tv_js/public/dependencies/videos/background_videos/rugby").then(rugby => {
+                let fileList =  {
+                  cricket,
+                  football,
+                  rugby
+                }
+                sendToSockets({type: FILE_LIST, payload: fileList});
+              }).catch(err => {
+                printError("fs", "server", "FILE_SYSTEM_ERROR_RUGBY");
+              })
+            }).catch(err => {
+              printError("fs", "server", "FILE_SYSTEM_ERROR_FOOTBALL");
+            })
+          }).catch(err => {
+            printError("fs", "server", "FILE_SYSTEM_ERROR_CRICKET");
+          })
+          
           let controllersExists = checkForControllers();
 
           if(!controllersExists){
             sendToSockets({type: NO_CONTROLLERS});
           }else{
-            sendToSockets({type: CONTROLLERS_AVAILABLE})
+            sendToSockets({type: CONTROLLERS_AVAILABLE});
           }
         }else{
-          printError(client.id, "server", "MONITOR_NAME_NOT_FOUND")
+          printError(client.id, "server", "MONITOR_NAME_NOT_FOUND");
         }
       });
+
+      client.on(SET_MONITOR, data => {
+        sendToSockets({type: SET_MONITOR, payload: {...data, colors: Colors.colors}})
+      })
       
       client.on("disconnect", () => {
         removeFromSocketList(client);
@@ -171,7 +209,7 @@ export default class Socket{
         if(!controllersExists){
           sendToSockets({type: NO_CONTROLLERS});
         }else{
-          sendToSockets({type: CONTROLLERS_AVAILABLE})
+          sendToSockets({type: CONTROLLERS_AVAILABLE});
         }
       })
     });

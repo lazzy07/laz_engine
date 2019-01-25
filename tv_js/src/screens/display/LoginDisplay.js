@@ -3,13 +3,15 @@ import { Gradient } from "../../components/Gradient";
 import { fontColor } from "../../constants";
 import { MONITOR_DISPLAY } from "../../routes";
 import { withRouter } from "react-router-dom";
+import { Radiobutton } from "../../components/controller/RadioButton";
 
 class LoginDisplay extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      monitorName: ""
+      monitorName: "",
+      type: "cricket"
     };
   }
 
@@ -19,9 +21,23 @@ class LoginDisplay extends Component {
     });
   };
 
+  onChangeRadioButton = type => {
+    this.setState({
+      type
+    });
+  };
+
+  checked = type => {
+    if (type === this.state.type) {
+      return true;
+    }
+    return false;
+  };
+
   onClick = () => {
     if (this.state.monitorName !== "") {
       localStorage.setItem("monitorName", this.state.monitorName);
+      localStorage.setItem("monitorType", this.state.type);
       this.props.history.push(MONITOR_DISPLAY);
     }
   };
@@ -117,6 +133,26 @@ class LoginDisplay extends Component {
                     Moinitor Name
                   </span>
                 </label>
+                <div style={{ padding: "10px" }}>
+                  <Radiobutton
+                    name="cricket"
+                    title="cricket"
+                    onChange={() => this.onChangeRadioButton("cricket")}
+                    value={this.checked("cricket")}
+                  />
+                  <Radiobutton
+                    name="football"
+                    title="football"
+                    onChange={() => this.onChangeRadioButton("football")}
+                    value={this.checked("football")}
+                  />
+                  <Radiobutton
+                    name="rugby"
+                    title="rugby"
+                    onChange={() => this.onChangeRadioButton("rugby")}
+                    value={this.checked("rugby")}
+                  />
+                </div>
                 <div
                   onClick={this.onClick}
                   className="waves-effect waves-light btn defColorButton"

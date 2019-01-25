@@ -51,8 +51,8 @@ export const getTournamentData = data => {
   return dispatch => {
     Socket.socket.emit(GET_TOURNAMENT_DATA, data);
 
-    Socket.socket.on(TOURNAMENT_DATA, data => {
-      dispatch({ type: TOURNAMENT_DATA, payload: data });
+    Socket.socket.on(TOURNAMENT_DATA, res => {
+      dispatch({ type: TOURNAMENT_DATA, payload: res });
     });
   };
 };

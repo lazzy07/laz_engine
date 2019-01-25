@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { printC, printError } from "../classes/Console";
+import { firestore } from "../firebase";
 
 const tournamentDB = require("./schemas/TournamentSchema");
 const teamDB = require("./schemas/TeamSchema");
@@ -108,6 +109,13 @@ class Database{
 
       newTournament.save().then(newData => {
         printC("database", "server", "SAVE_SUCCESS " + newData.name);
+        firestore
+          .collection("users")
+          .doc("antiraggers15")
+          .collection("tournaments")
+          .doc(newData._id.toString())
+          .set(saveData);
+
         resolve(newData);
       }).catch(err => {
         printC("database", "server", "ERR::: "+err.message);
@@ -123,9 +131,15 @@ class Database{
    */
   static getTournamentData = data => {
     return new Promise((resolve, reject) => {
-      tournamentDB.findOne({id: data}).then(newData => {
-        printC("database", "server", "TOURNAMENT_DATA " + newData.name);
-        resolve(newData);
+      tournamentDB.findOne({_id: data}).then(newData => {
+        if(newData){
+          printC("database", "server", "TOURNAMENT_DATA " + newData.name);
+          resolve(newData);
+        }else{
+          printError("database", "server", "ERR:::");
+          reject({message: "ERROR::: No data found"});
+        }
+        
       }).catch(err => {
         printError("database", "server", "ERR:::"+err.message);
         reject(err);
@@ -142,6 +156,12 @@ class Database{
     return new Promise((resolve, reject) => {
       tournamentDB.updateOne({_id: data._id}, {...data}).then(savedData => {
         printC("database", "server", "TOURNAMENT_DATA_UPDATE "+ data.name);
+        firestore
+          .collection("users")
+          .doc("antiraggers15")
+          .collection("tournaments")
+          .doc(data._id.toString())
+          .update(data);
         resolve(data);
       }).catch(err => {
         printError("database", "server", "ERR:::"+err.message);
@@ -177,7 +197,13 @@ class Database{
               }
               let player = new playerDB(teamMember);
               player.save().then(savedData => {
-                savedMembers.push(savedData._id);
+                savedMembers.push(savedData._id.toString());
+                firestore
+                    .collection("users")
+                    .doc("antiraggers15")
+                    .collection("players")
+                    .doc(savedData._id.toString())
+                    .set(teamMember);
                 counter++;
                 if(counter === teamMembers.length){
                   resolve(savedMembers);
@@ -198,6 +224,12 @@ class Database{
               foundData.group = data.group;
               foundData.players = savedMembers;
               foundData.save().then(savedData => {
+                firestore
+                  .collection("users")
+                  .doc("antiraggers15")
+                  .collection("teams")
+                  .doc(savedData._id.toString())
+                  .set({teamName: data.teamName, group: data.group, players: savedMembers});
                 resolve(savedData);
               }).catch(err => {
                 reject(err);
@@ -207,6 +239,12 @@ class Database{
         }else{
           let team = new teamDB({teamName, tournament, group, players: savedMembers});
           team.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("teams")
+              .doc(savedData._id.toString())
+              .set({teamName, tournament, group, players: savedMembers});
             resolve(savedData);
           }).catch(err => {
             reject(err);
@@ -237,6 +275,12 @@ class Database{
           foundData.group = group;
 
           foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(savedData._id.toString())
+              .set({teams: [selected1._id, selected2._id], match: matchName, tournament: tournamentId, group});
             resolve(savedData)
           })
         }).catch(err => {
@@ -251,11 +295,42 @@ class Database{
         })
 
         newMatch.save().then(savedData => {
+          firestore
+            .collection("users")
+            .doc("antiraggers15")
+            .collection("matches")
+            .doc(savedData._id.toString())
+            .set({teams: [selected1._id, selected2._id], match: matchName, tournament: tournamentId, group});
           resolve(savedData);
         }).catch(err => {
           reject(err);
         })
       }
+    })
+  }
+
+  static setMatchConfig = (data) => {
+    const {_id, config} = data;
+
+    matchDB.findOne(_id).then(foundData => {
+      return new Promise((resolve, reject) => {
+        if(foundData){
+          foundData.config = config;
+  
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(_id)
+              .update({config: data});
+
+            resolve(savedData)
+          }).catch(err => {
+            printError("database", "server", "ERR:::" + err.message)
+          })
+        }
+      })
     })
   }
 
@@ -278,6 +353,12 @@ class Database{
           foundData.nickName = nickName;
 
           foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("players")
+              .doc(savedData._id.toString())
+              .set({fName, lName, nickName});
             resolve(savedData)
           }).catch(err => {
             reject(err);

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 export class Collection extends Component {
   constructor(props) {
@@ -10,6 +11,9 @@ export class Collection extends Component {
   }
 
   activeEle = index => {
+    if (this.props.activeEle) {
+      this.props.activeEle(index);
+    }
     this.setState({
       active: index
     });
@@ -47,3 +51,8 @@ export class Collection extends Component {
     );
   }
 }
+
+Collection.propTypes = {
+  activeEle: PropTypes.func,
+  data: PropTypes.array.isRequired
+};

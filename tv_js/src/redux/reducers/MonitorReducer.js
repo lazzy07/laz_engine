@@ -1,8 +1,15 @@
-import { LOADING, SET_TYPE } from "../actions/MonitorActions";
+import {
+  LOADING,
+  SET_TYPE,
+  FILE_LIST,
+  SET_MONITOR
+} from "../actions/MonitorActions";
 
 const initialState = {
   loading: true,
-  type: ""
+  type: "",
+  fileList: null,
+  data: {}
 };
 
 export const monitorReducer = (state = initialState, action) => {
@@ -17,6 +24,18 @@ export const monitorReducer = (state = initialState, action) => {
       return {
         ...state,
         type: action.payload
+      };
+
+    case FILE_LIST:
+      return {
+        ...state,
+        fileList: action.payload
+      };
+
+    case SET_MONITOR:
+      return {
+        ...state,
+        data: { ...action.payload }
       };
     default:
       return state;

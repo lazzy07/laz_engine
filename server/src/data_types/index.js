@@ -72,6 +72,9 @@ export const PLAYER_LIST = "PLAYER_LIST";
 export const MATCH_LIST = "MATCH_LIST";
 export const SAVE_TEAM_OK = "SAVE_TEAM_OK";
 
+export const SET_MATCH_CONFIG = "SET_MATCH_CONFIG";
+
+
 
 /**
  * Monitor Data
@@ -80,3 +83,9 @@ export const CONTROLLERS_AVAILABLE = "CONTROLLERS_AVAILABLE";
 export const NO_CONTROLLERS = "NO_CONTROLLERS";
 export const REGISTER_MONITOR = "REGISTER_MONITOR";
 export const SET_TYPE = "SET_TYPE"; //setting background video type football || cricket || rugby
+
+//List of video background files {football, cricket, rugby}
+export const FILE_LIST = "FILE_LIST";
+
+//Changing monitor's screens must include {type}
+export const SET_MONITOR = "SET_MONITOR";

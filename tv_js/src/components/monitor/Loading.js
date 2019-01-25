@@ -5,10 +5,9 @@ import { Spinner } from "../Spinner";
 class Loading extends Component {
   render() {
     return (
-      <div style={{ width: "100%" }}>
+      <div style={{ width: "100%", zIndex: 9999999999 }}>
         <div
           style={{
-            zIndex: -9999999999,
             position: "absolute",
             top: "50%",
             left: "50%",

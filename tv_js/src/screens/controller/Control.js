@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import CricketController from "./control_screens/CricketController";
+import FootballController from "./control_screens/FootballController";
+import RugbyController from "./control_screens/RugbyController";
 
 class ControlScreen extends Component {
   /**
@@ -15,9 +17,17 @@ class ControlScreen extends Component {
         </div>
       );
     } else if (type === "football") {
-      return <div>Football</div>;
+      return (
+        <div>
+          <FootballController />
+        </div>
+      );
     } else if (type === "rugby") {
-      return <div>Rugby</div>;
+      return (
+        <div>
+          <RugbyController />
+        </div>
+      );
     } else {
       return (
         <div

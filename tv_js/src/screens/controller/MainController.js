@@ -47,7 +47,7 @@ class MainControllerScreen extends Component {
   componentDidMount() {
     let tournament = this.props.location.pathname.split("/")[2];
 
-    this.props.getTournamentData();
+    this.props.getTournamentData(tournament);
     this.props.getMatchesList(tournament);
     this.props.getPlayerList(tournament);
     this.props.getTeamData(tournament);
