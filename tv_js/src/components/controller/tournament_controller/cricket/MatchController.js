@@ -96,7 +96,7 @@ class MatchController extends Component {
             />
           );
         } else {
-          return <CricketMatchController />;
+          return <CricketMatchController selected={this.state.selected} />;
         }
       } else {
         return (

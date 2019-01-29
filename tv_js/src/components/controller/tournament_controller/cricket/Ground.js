@@ -6,11 +6,11 @@ export default class Ground extends Component {
         fill: "#FFFFFF"
       },
       st1: {
-        fill: "#00A99D"
+        fill: "#009688"
       },
       st2: {
         fill: "none",
-        stroke: "#00A99D",
+        stroke: "#009688",
         strokeWidth: 5,
         strokeMiterlimit: 10
       }
