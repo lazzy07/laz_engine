@@ -73,6 +73,18 @@ export const MATCH_LIST = "MATCH_LIST";
 export const SAVE_TEAM_OK = "SAVE_TEAM_OK";
 
 export const SET_MATCH_CONFIG = "SET_MATCH_CONFIG";
+export const RESET_MATCH_CONFIG = "RESET_MATCH_CONFIG";
+
+export const SET_BOWLING_END = "SET_BOWLING_END";
+export const SET_SHOT_POS = "SET_SHOT_POS";
+export const SET_RUNS = "SET_RUNS";
+export const SET_EXTRAS = "SET_EXTRAS";
+export const SET_WICKET = "SET_WICKET";
+export const SET_CATCHER = "SET_CATCHER";
+export const SET_OUT = "SET_OUT";
+export const SET_BOWLER = "SET_BOWLER";
+export const SET_BATSMEN = "SET_BATSMEN";
+export const SET_BATSMAN = "SET_BATSMAN";
 
 
 /**

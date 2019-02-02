@@ -175,6 +175,12 @@ class CricketSettings extends Component {
             title="Change batting ends?"
             checked={this.props.data.changeSides}
           />
+          <Checkbox
+            onClick={() => this.onClick("extraCountAsABall")}
+            name="extraCountAsABall"
+            title="Does an extra count as a ball?"
+            checked={this.props.data.extraCountAsABall}
+          />
           <Button
             title="Confirm"
             onClick={() =>

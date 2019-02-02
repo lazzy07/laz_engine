@@ -16,7 +16,17 @@ export const RESET_MATCH_CONFIG = "RESET_MATCH_CONFIG";
 
 export const SET_MATCH_LISTNERES = "SET_MATCH_LISTNERES";
 export const BALL_INFO = "BALL_INFO";
-export const SET_BALL_DATA = "SET_BALL_DATA";
+
+export const SET_BOWLING_END = "SET_BOWLING_END";
+export const SET_RUNS = "SET_RUNS";
+export const SET_SHOT_POS = "SET_SHOT_POS";
+export const SET_EXTRAS = "SET_EXTRAS";
+export const SET_WICKET = "SET_WICKET";
+export const SET_CATCHER = "SET_CATCHER";
+export const SET_OUT = "SET_OUT";
+export const SET_BOWLER = "SET_BOWLER";
+export const SET_BATSMEN = "SET_BATSMEN";
+export const SET_BATSMAN = "SET_BATSMAN";
 
 export const getMatchesList = tournamentId => {
   return dispatch => {
@@ -55,9 +65,164 @@ export const setMatchListners = (tournamentId, match) => {
 };
 
 export const resetMatchConfig = (tournamentId, matchId) => {
-  Socket.socket.emit(RESET_MATCH_CONFIG, { tournamentId, matchId });
+  return dispatch => {
+    Socket.socket.emit(RESET_MATCH_CONFIG, { tournamentId, matchId });
+  };
 };
 
-export const sendMatchBalldata = (tournamentId, matchId, data) => {
-  Socket.socket.emit(SET_BALL_DATA, { tournamentId, matchId, data });
+export const setBowlingEnd = (
+  tournamentId,
+  { matchId, inning, over, ball, bowlingEnd }
+) => {
+  return dispatch => {
+    Socket.socket.emit(SET_BOWLING_END, {
+      tournamentId,
+      matchId,
+      inning,
+      over,
+      ball,
+      bowlingEnd
+    });
+  };
+};
+
+export const setRuns = (
+  tournamentId,
+  { matchId, inning, over, ball, runs }
+) => {
+  return dispatch => {
+    Socket.socket.emit(SET_RUNS, {
+      tournamentId,
+      matchId,
+      inning,
+      over,
+      ball,
+      runs
+    });
+  };
+};
+
+export const setExtras = (
+  tournamentId,
+  { matchId, inning, over, ball, extra }
+) => {
+  return dispatch => {
+    Socket.socket.emit(SET_EXTRAS, {
+      tournamentId,
+      matchId,
+      inning,
+      over,
+      ball,
+      extra
+    });
+  };
+};
+
+export const setWicket = (
+  tournamentId,
+  { matchId, inning, over, ball, wicket }
+) => {
+  return dispatch => {
+    Socket.socket.emit(SET_WICKET, {
+      tournamentId,
+      matchId,
+      inning,
+      over,
+      ball,
+      wicket
+    });
+  };
+};
+
+export const setCatcher = (
+  tournamentId,
+  { matchId, inning, over, ball, catcher }
+) => {
+  return dispatch => {
+    Socket.socket.emit(SET_CATCHER, {
+      tournamentId,
+      matchId,
+      inning,
+      over,
+      ball,
+      catcher
+    });
+  };
+};
+
+export const setOut = (tournamentId, { matchId, inning, over, ball, out }) => {
+  return dispatch => {
+    Socket.socket.emit(SET_OUT, {
+      tournamentId,
+      matchId,
+      inning,
+      over,
+      ball,
+      out
+    });
+  };
+};
+
+export const setShotPos = (
+  tournamentId,
+  { matchId, inning, over, ball, shot }
+) => {
+  return dispatch => {
+    Socket.socket.emit(SET_SHOT_POS, {
+      tournamentId,
+      matchId,
+      inning,
+      over,
+      ball,
+      shot
+    });
+  };
+};
+
+export const setBowler = (
+  tournamentId,
+  { matchId, inning, over, ball, bowler }
+) => {
+  return dispatch => {
+    Socket.socket.emit(SET_BOWLER, {
+      tournamentId,
+      matchId,
+      inning,
+      over,
+      ball,
+      bowler
+    });
+  };
+};
+
+export const setBatsmen = (
+  tournamentId,
+  { matchId, inning, over, ball, batsmen }
+) => {
+  return dispatch => {
+    Socket.socket.emit(SET_BATSMEN, {
+      tournamentId,
+      matchId,
+      inning,
+      over,
+      ball,
+      batsmen
+    });
+  };
+};
+
+export const setBatsman = (
+  tournamentId,
+  { matchId, inning, over, ball, batsman }
+) => {
+  return dispatch => {
+    Socket.socket.emit(SET_BATSMAN, {
+      tournamentId,
+      matchId,
+      inning,
+      over,
+      ball,
+      batsman
+    });
+  };
 };

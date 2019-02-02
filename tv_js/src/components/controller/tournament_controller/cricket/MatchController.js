@@ -89,6 +89,7 @@ class MatchController extends Component {
         if (!selMatch.config) {
           return (
             <MatchConfig
+              tournament={this.props.tournament}
               teams={this.props.teams}
               matches={this.props.matches}
               selected={this.state.selected}
@@ -151,7 +152,8 @@ class MatchController extends Component {
 const mapStateToProps = state => {
   return {
     teams: state.teams,
-    matches: state.matches
+    matches: state.matches,
+    tournament: state.tournament.tournamentData
   };
 };
 

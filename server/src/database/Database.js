@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { printC, printError } from "../classes/Console";
 import { firestore } from "../firebase";
+import { addInningInitialData, ballInitial } from "../functions";
 
 const tournamentDB = require("./schemas/TournamentSchema");
 const teamDB = require("./schemas/TeamSchema");
@@ -41,24 +42,25 @@ class Database{
       switch(data.type){
         case "cricket":
           config = {} 
-          config.overs = 6;
-          config.ballsPerOver = 6;
+          config.overs = "6";
+          config.ballsPerOver = "6";
 
-          config.playersPerTeam = 6;
-          config.teamSize = 8;
+          config.playersPerTeam = "6";
+          config.teamSize = "8";
 
-          config.pointsPerWin = 3;
-          config.pointsPerDraw = 1;
-          config.pointsPerLoss = 0;
+          config.pointsPerWin = "3";
+          config.pointsPerDraw = "1";
+          config.pointsPerLoss = "0";
 
           config.freeHit = true;
-          config.pointsPerWide = 1;
-          config.pointsPerNoball = 1;
+          config.pointsPerWide = "1";
+          config.pointsPerNoball = "1";
 
-          config.pointsPerBoundary = 4;
-          config.pointsPerSix = 6;
+          config.pointsPerBoundary = "4";
+          config.pointsPerSix = "6";
 
           config.changeSides = true;
+          config.extraCountAsABall = false;
 
           config.tournamentType = "group/knockout"
           break;
@@ -66,15 +68,15 @@ class Database{
         case "football":
           config = {};
 
-          config.miniutesPermatch = 15;
-          config.penaltySize = 5;
+          config.miniutesPermatch = "15";
+          config.penaltySize = "5";
 
-          config.playersPerTeam = 11;
-          config.teamSize = 15;
+          config.playersPerTeam = "11";
+          config.teamSize = "15";
 
-          config.pointsPerWin = 3;
-          config.pointsPerDraw = 1;
-          config.pointsPerLoss = 0;
+          config.pointsPerWin = "3";
+          config.pointsPerDraw = "1";
+          config.pointsPerLoss = "0";
 
           config.tournamentType = "group/knockout";
           break;
@@ -82,19 +84,19 @@ class Database{
         case "rugby":
           config = {};
 
-          config.miniutesPermatch = 15;
-          config.penaltySize = 3;
+          config.miniutesPermatch = "15";
+          config.penaltySize = "3";
 
-          config.playersPerTeam = 7;
-          config.teamSize = 10;
+          config.playersPerTeam = "7";
+          config.teamSize = "10";
 
-          config.pointsPerTry = 3;
-          config.pointsPerDropKick = 1;
+          config.pointsPerTry = "3";
+          config.pointsPerDropKick = "1";
           config.canDropKick = true;
 
-          config.pointsPerWin = 3;
-          config.pointsPerDraw = 1;
-          config.pointsPerLoss = 0;
+          config.pointsPerWin = "3";
+          config.pointsPerDraw = "1";
+          config.pointsPerLoss = "0";
 
           config.tournamentType = "group/knockout";
           break;
@@ -323,13 +325,20 @@ class Database{
       matchDB.findOne({_id: match}).then(foundData => {
         if(foundData){
           foundData.config = data.data;
+          let initData1 = addInningInitialData({...data.data, inning: 1});
+          let initData2 = addInningInitialData({...data.data, inning: 2});
+          let matchD = {
+            inning1: initData1,
+            inning2: initData2
+          }
+          foundData.matchData = matchD;
           foundData.save().then(savedData => {
             firestore
               .collection("users")
               .doc("antiraggers15")
               .collection("matches")
               .doc(match)
-              .update({config: data.data});
+              .update({config: data.data, matchData: matchD});
 
             resolve(savedData)
           }).catch(err => {
@@ -403,6 +412,387 @@ class Database{
         }).catch(err=> {
           reject(err)
         })
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  static setBallData = (data) => {
+    let {matchId} = data;
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        let overData = foundData.data;
+        firestore
+          .collection("users")
+          .doc("antiraggers15")
+          .collection("matches")
+          .doc(match)
+          .update({matchData: data});
+      }).catch(err => {
+        reject(err);
+      })
+    })
+  }
+
+  static resetMatchConfig = data => {
+    let {tournamentId, matchId} = data;
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          foundData.config = {};
+          foundData.data = {}
+  
+          foundData.save().then(savedData => {
+            firestore
+            .collection("users")
+            .doc("antiraggers15")
+            .collection("matches")
+            .doc(matchId)
+            .update({config: {}, data: {}});
+
+            resolve(savedData)
+          }) 
+        }else{
+          reject({message: "data not found"})
+        }
+      }).catch(err => {
+        reject(err);
+      })
+    })
+  }
+
+  static setBowlingEnd = data => {
+    let {matchId, inning, over, bowlingEnd} = data;
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          foundData.matchData["inning"+ inning][parseInt(over)].bowlingEnd = bowlingEnd;
+          if(foundData.config.changeSides){
+            let overInt = parseInt(over)%2;
+            let nxtState = "Top";
+            if(bowlingEnd === "Top"){
+              nxtState = "Bottom"
+            }
+            for(let i=parseInt(over)+1; i<foundData.matchData["inning"+ inning].length; i++){
+              if(i%2 === overInt){
+                foundData.matchData["inning"+ inning][i].bowlingEnd = bowlingEnd;
+              }else{
+                foundData.matchData["inning"+ inning][i].bowlingEnd = nxtState;
+              }
+            }
+          }
+          foundData.markModified('matchData.inning'+inning);
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(matchId)
+              .update({matchData: savedData.matchData});
+
+            resolve(savedData)
+          })
+        }else{
+          reject({message: "ERROR::: data not found"})
+        }
+      }).catch(err => {
+        reject(err);
+      })
+    })
+  }
+
+  static setRuns = data => {
+    let {matchId, inning, over, ball, runs} = data;
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          let ovr = parseInt(over);
+          let bl = parseInt(ball);
+
+          // if(foundData.matchData["inning"+inning][ovr].balls[bl].runs === "?"){
+          //   if(ovr !== 0 && bl !== 0){
+          //     if(bl !== 0){
+          //       let lastBall = foundData.matchData["inning"+inning][ovr].balls[bl-1];
+          //       foundData.matchData["inning"+inning][ovr].balls[bl].batsmen = lastBall.batsmen;
+          //       if(lastBall.runs !== "?"){
+          //         if(parseInt(lastBall.runs)%2 === 1){
+          //           if(lastBall.batsmen.length === 2){
+          //             if(lastBall.batsman === lastBall.batsmen[0]){
+          //               foundData.matchData["inning"+inning][ovr].balls[bl].batsman = lastBall.batsmen[1]
+          //             }else{
+          //               foundData.matchData["inning"+inning][ovr].balls[bl].batsman = lastBall.batsmen[0]
+          //             }
+          //           }
+          //         }
+          //       }              
+          //     }else{
+          //       let overLen = foundData.matchData["inning"+inning][ovr-1].length-1;
+          //       let lastBall = foundData.matchData["inning"+inning][ovr-1][overLen];
+          //       foundData.matchData["inning"+inning][ovr].balls[bl].batsmen = lastBall.batsmen;
+          //       if(lastBall.runs !== "?"){
+          //         if(parseInt(lastBall.runs)%2 === 1){
+          //           if(lastBall.batsmen.length === 2){
+          //             if(lastBall.batsman === lastBall.batsmen[0]){
+          //               foundData.matchData["inning"+inning][ovr].balls[bl].batsman = lastBall.batsmen[0]
+          //             }else{
+          //               foundData.matchData["inning"+inning][ovr].balls[bl].batsman = lastBall.batsmen[1]
+          //             }
+          //           }
+          //         }
+          //       }
+          //     }
+          //   }
+          // }
+          
+          foundData.matchData["inning"+inning][ovr].balls[bl].runs = runs;
+
+          foundData.markModified('matchData.inning'+inning);
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(matchId)
+              .update({matchData: savedData.matchData});
+
+              resolve(savedData);
+          })
+        }else{
+          reject({message: "ERROR::: Data not found"})
+        }
+      }).catch(err => {
+        reject(err);
+      })
+    })
+  }
+
+  static setExtras = data => {
+    let {extra, matchId, inning, over, ball} = data;
+    let ovr = parseInt(over);
+    let bl = parseInt(ball);
+    let inn = "inning"+inning;
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          if(!foundData.config.extraCountAsABall){
+            let newBall = ballInitial();
+            if(foundData.matchData[inn][ovr].balls[bl].extra === "No extras"){
+              foundData.matchData[inn][ovr].balls.push(newBall)
+            }else{
+              if(extra === "No extras"){
+                foundData.matchData[inn][ovr].balls.splice(bl+1, 1);
+              }
+            }
+          }
+
+          foundData.matchData[inn][ovr].balls[bl].extra = extra;
+          foundData.markModified('matchData.inning'+inning);
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(matchId)
+              .update({matchData: savedData.matchData});
+
+            resolve(savedData)
+          })
+        }else{
+          reject({message: "ERROR::: Message not found"})
+        }
+      })
+    })
+  }
+
+  static setWicket = data => {
+    let {wicket, matchId, inning, over, ball} = data;
+    let ovr = parseInt(over);
+    let bl = parseInt(ball);
+    let inn = "inning"+inning;
+
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          foundData.matchData[inn][ovr].balls[bl].wicket = wicket;
+          foundData.matchData[inn][ovr].balls[bl].out = foundData.matchData[inn][ovr].balls[bl].batsman;
+          foundData.markModified('matchData.inning'+inning);
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(matchId)
+              .update({matchData: savedData.matchData});
+
+            resolve(savedData)
+          })
+        }else{
+          reject({message: "ERROR::: Data not found"})
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  static setCatcher = data => {
+    let {catcher, matchId, inning, over, ball} = data;
+    let ovr = parseInt(over);
+    let bl = parseInt(ball);
+    let inn = "inning"+inning;
+
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          foundData.matchData[inn][ovr].balls[bl].catcher = catcher;
+          foundData.markModified('matchData.inning'+inning);
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(matchId)
+              .update({matchData: savedData.matchData});
+
+            resolve(savedData)
+          })
+        }else{
+          reject({message: "ERROR::: Data not found"})
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  static setOut = data => {
+    let {out, matchId, inning, over, ball} = data;
+    let ovr = parseInt(over);
+    let bl = parseInt(ball);
+    let inn = "inning"+inning;
+
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          foundData.matchData[inn][ovr].balls[bl].out = out;
+          foundData.markModified('matchData.inning'+inning);
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(matchId)
+              .update({matchData: savedData.matchData});
+
+            resolve(savedData)
+          })
+        }else{
+          reject({message: "ERROR::: Data not found"})
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  static setBatsmen = data => {
+    let {batsmen, batsman, matchId, inning, over, ball} = data;
+    let ovr = parseInt(over);
+    let bl = parseInt(ball);
+    let inn = "inning"+inning;
+
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          foundData.matchData[inn][ovr].balls[bl].batsmen = batsmen;
+
+          for(let i=ovr; i<foundData.matchData[inn].length; i++){
+            for(let j= ovr === i ? bl: 0; j< foundData.matchData[inn][i].balls.length; j++){
+              foundData.matchData[inn][i].balls[j].batsmen = batsmen;
+            }
+          }
+          if(batsman !== undefined){
+            foundData.matchData[inn][ovr].balls[bl].batsman = batsman;
+          }
+          foundData.markModified('matchData.inning'+inning);
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(matchId)
+              .update({matchData: savedData.matchData});
+
+            resolve(savedData)
+          })
+        }else{
+          reject({message: "ERROR::: Data not found"})
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  static setBowler = data => {
+    let {bowler, matchId, inning, over, ball} = data;
+    let ovr = parseInt(over);
+    let bl = parseInt(ball);
+    let inn = "inning"+inning;
+
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          for(let i=bl; i<foundData.matchData[inn][ovr].balls.length; i++){
+            if(!foundData.matchData[inn][ovr].balls[i].bowler){
+              foundData.matchData[inn][ovr].balls[i].bowler = bowler;
+            }
+          }
+          foundData.markModified('matchData.inning'+inning);
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(matchId)
+              .update({matchData: savedData.matchData});
+
+            resolve(savedData)
+          })
+        }else{
+          reject({message: "ERROR::: Data not found"})
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  static setBatsman = data => {
+    let {batsman, matchId, inning, over, ball} = data;
+    let ovr = parseInt(over);
+    let bl = parseInt(ball);
+    let inn = "inning"+inning;
+
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          foundData.matchData[inn][ovr].balls[bl].batsman = batsman;
+          foundData.markModified('matchData.inning'+inning);
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(matchId)
+              .update({matchData: savedData.matchData});
+
+            resolve(savedData)
+          })
+        }else{
+          reject({message: "ERROR::: Data not found"})
+        }
       }).catch(err => {
         reject(err)
       })

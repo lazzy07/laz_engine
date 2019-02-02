@@ -23,11 +23,15 @@ export default class Paginations extends Component {
     return (
       <div>
         <ul className="pagination">
-          <li className="disabled">
+          <li className={this.props.leftDisabled ? "disabled" : ""}>
             {/* eslint-disable-next-line */}
-            <a style={{ fontWeight: "bolder" }}>{"<"}</a>
+            {this.props.left ? <a onClick={this.props.onLeftPaginationClick} style={{ fontWeight: "bolder" }}>{"<"}</a> : <div/>}
           </li>
           {this.renderPaginations(this.props.elems, this.props.active)}
+          <li className={this.props.rightDisabled ? "disabled" : ""}>
+            {/* eslint-disable-next-line */}
+            {this.props.right ? <a onClick={this.props.onRightPaginationClick} style={{ fontWeight: "bolder" }}>{">"}</a> : <div/>}
+          </li>
         </ul>
       </div>
     );

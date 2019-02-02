@@ -1,11 +1,12 @@
 const io = require('socket.io')();
-import { ADD_MONITOR, ADD_CONTROLLER, GET_TOURNAMENT_LIST, TOURNAMENT_LIST, CREATE_TOURNAMENT, CREATE_TOURNAMENT_OK, CREATE_TOURNAMENT_ERROR, GET_TOURNAMENT_DATA, TOURNAMENT_DATA, SET_TOURNAMENT_DATA, SET_TEAM_DATA, TEAM_DATA, PLAYER_LIST, SAVE_TEAM_OK, MATCH_LIST, GET_MATCH_LIST, GET_PLAYER_LIST, GET_TEAM_DATA, SET_MATCH_DATA_OK, SET_MATCH_DATA, SET_PLAYER_DATA, SET_PLAYER_DATA_OK, REGISTER_MONITOR, NO_CONTROLLERS, CONTROLLERS_AVAILABLE, FILE_LIST, SET_MONITOR, SET_MATCH_CONFIG, SET_MATCH_CONFIG_OK } from "../data_types";
+import { ADD_MONITOR, ADD_CONTROLLER, GET_TOURNAMENT_LIST, TOURNAMENT_LIST, CREATE_TOURNAMENT, CREATE_TOURNAMENT_OK, CREATE_TOURNAMENT_ERROR, GET_TOURNAMENT_DATA, TOURNAMENT_DATA, SET_TOURNAMENT_DATA, SET_TEAM_DATA, TEAM_DATA, PLAYER_LIST, SAVE_TEAM_OK, MATCH_LIST, GET_MATCH_LIST, GET_PLAYER_LIST, GET_TEAM_DATA, SET_MATCH_DATA_OK, SET_MATCH_DATA, SET_PLAYER_DATA, SET_PLAYER_DATA_OK, REGISTER_MONITOR, NO_CONTROLLERS, CONTROLLERS_AVAILABLE, FILE_LIST, SET_MONITOR, SET_MATCH_CONFIG, RESET_MATCH_CONFIG, SET_BOWLING_END, SET_SHOT_POS, SET_EXTRAS, SET_WICKET, SET_CATCHER, SET_BOWLER, SET_BATSMEN, SET_BATSMAN, SET_RUNS, SET_OUT } from "../data_types";
 import Monitor from "./Monitor";
 import {addToSocketList, removeFromSocketList, sendToSockets, checkForControllers} from "../index";
 import Database from "../database/Database";
 import { printC, printError } from "./Console";
 import FileReader from "./FileReader";
 import { Colors } from "./Colors";
+import { PLAYER_DATABSE } from "../constants";
 export default class Socket{
   /**
    * Initialize socket server
@@ -151,6 +152,111 @@ export default class Socket{
         printC(client.id, "server", SET_MATCH_CONFIG);
         Database.setMatchConfig(data).then(savedData => {
           Database.getMatchData(data._id).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      });
+
+      client.on(RESET_MATCH_CONFIG, data => {
+        printC(client.id, "server", RESET_MATCH_CONFIG);
+        Database.resetMatchConfig(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      });
+
+      client.on(SET_BOWLING_END, data=> {
+        Database.setBowlingEnd(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        });
+      })
+
+      client.on(SET_SHOT_POS, data => {
+        console.log(data);
+      })
+
+      client.on(SET_RUNS, data => {
+        Database.setRuns(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      })
+
+      client.on(SET_EXTRAS, data => {
+        Database.setExtras(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      })
+
+      client.on(SET_WICKET, data => {
+        Database.setWicket(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      })
+
+      client.on(SET_CATCHER, data => {
+        Database.setCatcher(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      })
+
+      client.on(SET_OUT, data => {
+        Database.setOut(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      })
+
+      client.on(SET_BOWLER, data => {
+        Database.setBowler(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      })
+
+      client.on(SET_BATSMEN, data => {
+        Database.setBatsmen(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      })
+
+      client.on(SET_BATSMAN, data => {
+        Database.setBatsman(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
             sendToSockets({type: MATCH_LIST, payload: foundData});
           }).catch(err => {
             printError("database", "server", MATCH_LIST)

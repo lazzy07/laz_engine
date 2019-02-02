@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { Dropdown } from "../../Dropdown";
 import { getRealData } from "../../../../functions";
 import { Button } from "../../Button";
+import { Checkbox } from "../../Checkbox";
+import { Inputbox } from "../../Inputbox";
 
 export default class MatchConfig extends Component {
   constructor(props) {
@@ -10,7 +12,12 @@ export default class MatchConfig extends Component {
     this.state = {
       type: "odi",
       firstInnningBat: "not selected",
-      thirdInningBat: "not seleceted"
+      thirdInningBat: "not seleceted",
+      ballsPerOver: null,
+      overs: null,
+      extraCountAsABall: null,
+      changeSides: null,
+      freeHit: null
     };
   }
 
@@ -72,6 +79,35 @@ export default class MatchConfig extends Component {
     this.props.onSubmit(this.state);
   };
 
+  onClick = name => {
+    this.setState({
+      [name]: !this.state[name]
+    });
+  };
+
+  onChange = e => {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  };
+
+  componentWillMount() {
+    let {
+      ballsPerOver,
+      overs,
+      extraCountAsABall,
+      changeSides,
+      freeHit
+    } = this.props.tournament.config;
+    this.setState({
+      ballsPerOver,
+      overs,
+      extraCountAsABall,
+      changeSides,
+      freeHit
+    });
+  }
+
   render() {
     return (
       <div>
@@ -95,7 +131,42 @@ export default class MatchConfig extends Component {
             />
           </div>
         </div>
-
+        <Inputbox
+          onChange={e => this.onChange(e)}
+          title="Balls Per Over"
+          name="ballsPerOver"
+          id="ballsPerOver"
+          value={this.state.ballsPerOver || ""}
+          color={"black"}
+          active
+        />
+        <Inputbox
+          onChange={e => this.onChange(e)}
+          title="Overs"
+          name="overs"
+          id="overs"
+          value={this.state.overs || ""}
+          color={"black"}
+          active
+        />
+        <Checkbox
+          onClick={() => this.onClick("freeHit")}
+          name="freeHit"
+          title="Free Hit?"
+          checked={this.state.freeHit}
+        />
+        <Checkbox
+          onClick={() => this.onClick("changeSides")}
+          name="changeSides"
+          title="Change batting ends?"
+          checked={this.state.changeSides}
+        />
+        <Checkbox
+          onClick={() => this.onClick("extraCountAsABall")}
+          name="extraCountAsABall"
+          title="Does an extra count as a ball?"
+          checked={this.state.extraCountAsABall}
+        />
         <div className="row">
           <div
             className="col s12"

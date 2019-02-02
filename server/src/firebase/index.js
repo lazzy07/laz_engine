@@ -5,8 +5,8 @@ import { config } from "./config";
 firebase.initializeApp(config);
 let firestore = firebase.firestore();
 
-firestore.settings({
-  timestampsInSnapshots: true
-});
+// firestore.settings({
+//   timestampsInSnapshots: true
+// });
 
 export { firestore };

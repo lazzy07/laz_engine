@@ -1,9 +1,51 @@
 import React, { Component } from "react";
 export default class Ground extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      linesPos: {
+        top: {
+          x1: 594,
+          y1: 570.5,
+          x2: 772,
+          y2: 570.5
+        },
+        bottom: {
+          x1: 594,
+          y1: 798.5,
+          x2: 772,
+          y2: 798.5
+        }
+      }
+    };
+    this.svgRef = null;
+  }
+
+  svgPt = () => {
+    return this.svgRef.createSVGPoint();
+  };
+
+  getBBox = () => {
+    if (this.svgRef) {
+      return this.svgRef.getBoundingClientRect();
+    } else {
+      return null;
+    }
+  };
+
+  getScrCoord = () => {
+    if (this.svgRef) {
+      return this.svgRef.getScreenCTM().inverse();
+    } else {
+      return null;
+    }
+  };
+
   render() {
     let styles = {
       st0: {
-        fill: "#FFFFFF"
+        fill: "#000000"
       },
       st1: {
         fill: "#009688"
@@ -18,7 +60,14 @@ export default class Ground extends Component {
 
     return (
       <div>
-        <svg width="100%" viewBox="0 0 1360 1360">
+        <svg
+          ref={r => (this.svgRef = r)}
+          width="100%"
+          viewBox="0 0 1360 1360"
+          onClick={e => {
+            this.props.onClick(e);
+          }}
+        >
           <g id="ground">
             <g>
               <path
@@ -62,64 +111,91 @@ export default class Ground extends Component {
               />
             </g>
           </g>
-          <g id="top">
-            <g>
+          <g>
+            {this.props.active && this.props.x ? (
               <line
                 style={styles.st2}
-                x1="594"
-                y1="570.5"
-                x2="772"
-                y2="570.5"
+                x1={
+                  (this.state.linesPos[this.props.active].x1 +
+                    this.state.linesPos[this.props.active].x2) /
+                  2
+                }
+                y1={
+                  (this.state.linesPos[this.props.active].y1 +
+                    this.state.linesPos[this.props.active].y2) /
+                  2
+                }
+                x2={this.props.x}
+                y2={this.props.y}
               />
-            </g>
-            <g>
-              <line
-                style={styles.st2}
-                x1="637.5"
-                y1="517.5"
-                x2="637.5"
-                y2="570.5"
-              />
-            </g>
-            <g>
-              <line
-                style={styles.st2}
-                x1="741.5"
-                y1="517.5"
-                x2="741.5"
-                y2="570.5"
-              />
-            </g>
+            ) : null}
           </g>
-          <g id="bottom">
-            <g>
-              <line
-                style={styles.st2}
-                x1="594"
-                y1="798.5"
-                x2="772"
-                y2="798.5"
-              />
+          {this.props.top ? (
+            <g id="top">
+              <g>
+                <line
+                  style={styles.st2}
+                  x1={this.state.linesPos.top.x1}
+                  y1={this.state.linesPos.top.y1}
+                  x2={this.state.linesPos.top.x2}
+                  y2={this.state.linesPos.top.y2}
+                />
+              </g>
+              <g>
+                <line
+                  style={styles.st2}
+                  x1="637.5"
+                  y1="517.5"
+                  x2="637.5"
+                  y2="570.5"
+                />
+              </g>
+              <g>
+                <line
+                  style={styles.st2}
+                  x1="741.5"
+                  y1="517.5"
+                  x2="741.5"
+                  y2="570.5"
+                />
+              </g>
             </g>
-            <g>
-              <line
-                style={styles.st2}
-                x1="637.5"
-                y1="798.5"
-                x2="637.5"
-                y2="851.5"
-              />
+          ) : (
+            <g />
+          )}
+          {this.props.bottom ? (
+            <g id="bottom">
+              <g>
+                <line
+                  style={styles.st2}
+                  x1={this.state.linesPos.bottom.x1}
+                  y1={this.state.linesPos.bottom.y1}
+                  x2={this.state.linesPos.bottom.x2}
+                  y2={this.state.linesPos.bottom.y2}
+                />
+              </g>
+              <g>
+                <line
+                  style={styles.st2}
+                  x1="637.5"
+                  y1="798.5"
+                  x2="637.5"
+                  y2="851.5"
+                />
+              </g>
+              <g>
+                <line
+                  style={styles.st2}
+                  x1="741.5"
+                  y1="798.5"
+                  x2="741.5"
+                  y2="851.5"
+                />
+              </g>
             </g>
-            <g>
-              <line
-                style={styles.st2}
-                x1="741.5"
-                y1="798.5"
-                x2="741.5"
-                y2="851.5"
-              />
-            </g>
-          </g>
+          ) : (
+            <g />
+          )}
         </svg>
       </div>
     );
