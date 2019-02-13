@@ -17,6 +17,8 @@ export const SET_MONITOR = "SET_MONITOR";
 export const DISPLAY_INTRO = "DISPLAY_INTRO";
 export const DISPLAY_NEXT_MATCH = "DISPLAY_NEXT_MATCH";
 export const DISPLAY_GROUP_INFO_CRICKET = "DISPLAY_GROUP_INFO_CRICKET";
+export const DISPLAY_TEAM_CARD = "DISPLAY_TEAM_CARD";
+export const DISPLAY_SCOREBOARD = "DISPLAY_SCOREBOARD";
 
 /**
  * Registering device as a monitor
@@ -52,15 +54,15 @@ export const sendToDisplay = data => {
   return dispatch => {
     const { _id } = data;
     Socket.socket.emit(SET_MONITOR, data);
-    firestore
-      .collection("users")
-      .doc("antiraggers15")
-      .collection("tournaments")
-      .doc(_id)
-      .set(data)
-      .catch(err => {
-        console.log(err);
-      });
+    // firestore
+    //   .collection("users")
+    //   .doc("antiraggers15")
+    //   .collection("tournaments")
+    //   .doc(_id)
+    //   .set(data)
+    //   .catch(err => {
+    //     console.log(err);
+    //   });
 
     Socket.socket.on(SET_MONITOR, res => {
       dispatch({ type: SET_MONITOR, payload: res });

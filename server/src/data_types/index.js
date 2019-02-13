@@ -74,6 +74,7 @@ export const SAVE_TEAM_OK = "SAVE_TEAM_OK";
 
 export const SET_MATCH_CONFIG = "SET_MATCH_CONFIG";
 export const RESET_MATCH_CONFIG = "RESET_MATCH_CONFIG";
+export const SET_CURRENT_MATCH = "SET_CURRENT_MATCH";
 
 export const SET_BOWLING_END = "SET_BOWLING_END";
 export const SET_SHOT_POS = "SET_SHOT_POS";

@@ -1,5 +1,5 @@
 const io = require('socket.io')();
-import { ADD_MONITOR, ADD_CONTROLLER, GET_TOURNAMENT_LIST, TOURNAMENT_LIST, CREATE_TOURNAMENT, CREATE_TOURNAMENT_OK, CREATE_TOURNAMENT_ERROR, GET_TOURNAMENT_DATA, TOURNAMENT_DATA, SET_TOURNAMENT_DATA, SET_TEAM_DATA, TEAM_DATA, PLAYER_LIST, SAVE_TEAM_OK, MATCH_LIST, GET_MATCH_LIST, GET_PLAYER_LIST, GET_TEAM_DATA, SET_MATCH_DATA_OK, SET_MATCH_DATA, SET_PLAYER_DATA, SET_PLAYER_DATA_OK, REGISTER_MONITOR, NO_CONTROLLERS, CONTROLLERS_AVAILABLE, FILE_LIST, SET_MONITOR, SET_MATCH_CONFIG, RESET_MATCH_CONFIG, SET_BOWLING_END, SET_SHOT_POS, SET_EXTRAS, SET_WICKET, SET_CATCHER, SET_BOWLER, SET_BATSMEN, SET_BATSMAN, SET_RUNS, SET_OUT } from "../data_types";
+import { ADD_MONITOR, ADD_CONTROLLER, GET_TOURNAMENT_LIST, TOURNAMENT_LIST, CREATE_TOURNAMENT, CREATE_TOURNAMENT_OK, CREATE_TOURNAMENT_ERROR, GET_TOURNAMENT_DATA, TOURNAMENT_DATA, SET_TOURNAMENT_DATA, SET_TEAM_DATA, TEAM_DATA, PLAYER_LIST, SAVE_TEAM_OK, MATCH_LIST, GET_MATCH_LIST, GET_PLAYER_LIST, GET_TEAM_DATA, SET_MATCH_DATA_OK, SET_MATCH_DATA, SET_PLAYER_DATA, SET_PLAYER_DATA_OK, REGISTER_MONITOR, NO_CONTROLLERS, CONTROLLERS_AVAILABLE, FILE_LIST, SET_MONITOR, SET_MATCH_CONFIG, RESET_MATCH_CONFIG, SET_BOWLING_END, SET_SHOT_POS, SET_EXTRAS, SET_WICKET, SET_CATCHER, SET_BOWLER, SET_BATSMEN, SET_BATSMAN, SET_RUNS, SET_OUT, SET_CURRENT_MATCH } from "../data_types";
 import Monitor from "./Monitor";
 import {addToSocketList, removeFromSocketList, sendToSockets, checkForControllers} from "../index";
 import Database from "../database/Database";
@@ -7,6 +7,7 @@ import { printC, printError } from "./Console";
 import FileReader from "./FileReader";
 import { Colors } from "./Colors";
 import { PLAYER_DATABSE } from "../constants";
+import { firestore } from "../firebase";
 export default class Socket{
   /**
    * Initialize socket server
@@ -181,7 +182,13 @@ export default class Socket{
       })
 
       client.on(SET_SHOT_POS, data => {
-        console.log(data);
+        Database.setShot(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
       })
 
       client.on(SET_RUNS, data => {
@@ -264,6 +271,17 @@ export default class Socket{
         })
       })
 
+      client.on(SET_CURRENT_MATCH, data => {
+        printC(client.id, "server", SET_CURRENT_MATCH);
+        Database.setCurrentMatch(data).then(savedData => {
+          Database.getMatchData(data.tournamentId).then(foundData => {
+            sendToSockets({type: MATCH_LIST, payload: foundData});
+          }).catch(err => {
+            printError("database", "server", MATCH_LIST)
+          })
+        })
+      })
+
       /**
        * Monitor Data Handling
        */
@@ -305,6 +323,11 @@ export default class Socket{
       });
 
       client.on(SET_MONITOR, data => {
+        if(data.type === "DISPLAY_SCOREBOARD"){
+          firestore.collection("users").doc("antiraggers15").collection("data").doc("currentMatch").set({
+            data, colors: Colors.colors
+          })
+        }
         sendToSockets({type: SET_MONITOR, payload: {...data, colors: Colors.colors}})
       })
       

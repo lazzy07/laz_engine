@@ -1,4 +1,4 @@
-export const SERVER_IP = "192.168.1.3";
+export const SERVER_IP = "192.168.1.100";
 export const SOCKET_PORT = 8000;
 
 export const DEFAULT_GRADIENT =

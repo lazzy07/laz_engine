@@ -290,7 +290,7 @@ class Database{
               .doc("antiraggers15")
               .collection("matches")
               .doc(savedData._id.toString())
-              .set({teams: [selected1._id, selected2._id], match: matchName, tournament: tournamentId, group});
+              .set({teams: [selected1._id, selected2._id], match: matchName, tournament: tournamentId, group, status: "none"});
             resolve(savedData)
           })
         }).catch(err => {
@@ -310,7 +310,7 @@ class Database{
             .doc("antiraggers15")
             .collection("matches")
             .doc(savedData._id.toString())
-            .set({teams: [selected1._id, selected2._id], match: matchName, tournament: tournamentId, group});
+            .set({teams: [selected1._id, selected2._id], match: matchName, tournament: tournamentId, group, status: "none"});
           resolve(savedData);
         }).catch(err => {
           reject(err);
@@ -544,7 +544,6 @@ class Database{
           //     }
           //   }
           // }
-          
           foundData.matchData["inning"+inning][ovr].balls[bl].runs = runs;
 
           foundData.markModified('matchData.inning'+inning);
@@ -577,6 +576,9 @@ class Database{
         if(foundData){
           if(!foundData.config.extraCountAsABall){
             let newBall = ballInitial();
+            newBall.inning = inning;
+            newBall.over = over;
+            newBall.ball = foundData.matchData[inn][ovr].balls.length.toString();
             if(foundData.matchData[inn][ovr].balls[bl].extra === "No extras"){
               foundData.matchData[inn][ovr].balls.push(newBall)
             }else{
@@ -797,6 +799,91 @@ class Database{
         reject(err)
       })
     })
+  }
+
+  static setShot = data => {
+    let {shot, matchId, inning, over, ball} = data;
+    let ovr = parseInt(over);
+    let bl = parseInt(ball);
+    let inn = "inning"+inning;
+
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({_id: matchId}).then(foundData => {
+        if(foundData){
+          foundData.matchData[inn][ovr].balls[bl].shot = shot;
+          foundData.markModified('matchData.inning'+inning);
+          foundData.save().then(savedData => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(matchId)
+              .update({matchData: savedData.matchData});
+
+            resolve(savedData)
+          })
+        }else{
+          reject({message: "ERROR::: Data not found"})
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  static setCurrentMatch = data => {
+    let {matchId} = data;
+    return new Promise((resolve, reject) => {
+      matchDB.findOne({status: "current"}).then(foundData => {
+        if(foundData){
+          foundData.status = "none";
+          foundData.save().then(() => {
+            firestore
+              .collection("users")
+              .doc("antiraggers15")
+              .collection("matches")
+              .doc(foundData._id.toString())
+              .update({status: "current"});
+            matchDB.findOne({_id: matchId}).then(foundData => {
+              if(foundData){
+                foundData.status = "current";
+                foundData.save().then((savedData) => {
+                  firestore
+                    .collection("users")
+                    .doc("antiraggers15")
+                    .collection("matches")
+                    .doc(matchId)
+                    .update({status: "current"});
+                  resolve(savedData);
+                })
+              }else{
+                reject({message: "ERROR::: Match not found"})
+              }
+            })
+          })
+        }else{
+          matchDB.findOne({_id: matchId}).then(foundData => {
+            if(foundData){
+              foundData.status = "current";
+              foundData.save().then((savedData) => {
+                firestore
+                  .collection("users")
+                  .doc("antiraggers15")
+                  .collection("matches")
+                  .doc(matchId)
+                  .update({status: "current"});
+                resolve(savedData);
+              })
+            }else{
+              reject({message: "ERROR::: Match not found"})
+            }
+          })
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    })
+    
   }
 }
 

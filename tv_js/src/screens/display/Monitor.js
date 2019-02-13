@@ -5,12 +5,16 @@ import {
   registerMonitor,
   DISPLAY_INTRO,
   DISPLAY_NEXT_MATCH,
-  DISPLAY_GROUP_INFO_CRICKET
+  DISPLAY_GROUP_INFO_CRICKET,
+  DISPLAY_TEAM_CARD,
+  DISPLAY_SCOREBOARD
 } from "../../redux/actions/MonitorActions";
 import Background from "../../components/monitor/tv_graphics/Background";
 import Intro from "../../components/monitor/tv_graphics/Intro";
 import NextMatch from "../../components/monitor/tv_graphics/NextMatch";
 import GroupInfo from "../../components/monitor/tv_graphics/cricket/GroupInfo";
+import { Gradient } from "../../components/Gradient";
+import ScoreBoard from "../../components/monitor/tv_graphics/cricket/ScoreBoard";
 
 class Monitor extends Component {
   componentDidMount = () => {
@@ -23,7 +27,6 @@ class Monitor extends Component {
       return <Loading />;
     } else {
       const { type } = this.props.data;
-
       switch (type) {
         case DISPLAY_INTRO:
           return <Intro />;
@@ -33,6 +36,9 @@ class Monitor extends Component {
 
         case DISPLAY_GROUP_INFO_CRICKET:
           return <GroupInfo />;
+
+        case DISPLAY_SCOREBOARD:
+          return <ScoreBoard />;
 
         default:
           return <Loading />;
@@ -45,6 +51,7 @@ class Monitor extends Component {
       <div style={{ height: "100vh", width: "100vw", overflow: "hidden" }}>
         {this.selectRender()}
         <Background />
+        <Gradient />
       </div>
     );
   }

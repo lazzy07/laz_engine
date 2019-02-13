@@ -2,10 +2,14 @@ server/node_modules
 tv_js/node_modules
 tv_js/public/dependencies/videos/background_videos
 
+tv_broadcast/react/tv_web_app/node_modules
+tv_broadcast/react/tv_web_app/public
+
 server/dist
 
 tv_js/build
 
+tv_broadcast/react/tv_web_app/src/firebase/config.js
 tv_js/src/firebase/config.js
 
 server/src/firebase/config.js

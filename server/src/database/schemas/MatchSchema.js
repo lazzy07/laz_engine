@@ -8,6 +8,7 @@ let matchSchema = new mongoose.Schema({
   time: {type: Number, default: 0},
   data: Object,
   matchData: Object,
+  status: {type: String, default: "none"},
   group: String, //A, B, C, .... or || semi, quarter, final
   tournament: String
 })

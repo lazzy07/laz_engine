@@ -13,6 +13,7 @@ export const SET_MATCH_DATA_OK = "SET_MATCH_DATA_OK";
 
 export const SET_MATCH_CONFIG = "SET_MATCH_CONFIG";
 export const RESET_MATCH_CONFIG = "RESET_MATCH_CONFIG";
+export const SET_CURRENT_MATCH = "SET_CURRENT_MATCH";
 
 export const SET_MATCH_LISTNERES = "SET_MATCH_LISTNERES";
 export const BALL_INFO = "BALL_INFO";
@@ -67,6 +68,12 @@ export const setMatchListners = (tournamentId, match) => {
 export const resetMatchConfig = (tournamentId, matchId) => {
   return dispatch => {
     Socket.socket.emit(RESET_MATCH_CONFIG, { tournamentId, matchId });
+  };
+};
+
+export const setCurrentMatch = (tournamentId, matchId) => {
+  return dispatch => {
+    Socket.socket.emit(SET_CURRENT_MATCH, { tournamentId, matchId });
   };
 };
 

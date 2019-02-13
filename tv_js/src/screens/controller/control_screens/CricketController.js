@@ -15,17 +15,17 @@ import GroupInfo from "../../../components/controller/tournament_controller/cric
 
 const cricketCollection = [
   "Match Controller",
-  "Score Card",
+  // "Score Card",
   "Team Card",
-  "Manhattan",
-  "Progress",
-  "Run Chase",
-  "Standings",
-  "Group Info",
-  "Knockout Info",
+  // "Manhattan",
+  // "Progress",
+  // "Run Chase",
+  // "Standings",
+  // "Group Info",
+  // "Knockout Info",
   "Next Match",
-  "Intro",
-  "Last Matches"
+  "Intro"
+  // "Last Matches"
 ];
 
 export default class CricketController extends Component {

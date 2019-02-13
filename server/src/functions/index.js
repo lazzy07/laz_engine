@@ -6,7 +6,7 @@ export const ballInitial = () => {
     bowler: null,
     batsman: null,
     batsmen: [],
-    inning: "0",
+    inning: "1",
     over: "0",
     ball: "0",
     out: null,

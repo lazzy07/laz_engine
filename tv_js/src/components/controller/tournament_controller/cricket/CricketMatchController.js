@@ -21,8 +21,21 @@ import {
   setBowler,
   setBatsman,
   setBatsmen,
-  setOut
+  setOut,
+  setCurrentMatch
 } from "../../../../redux/actions/MatchActions";
+import {
+  getInningScore,
+  getWickets,
+  getBatsmenScore,
+  totalBalls,
+  getWinner,
+  getBowlerStat
+} from "../../../../functions/FetchData";
+import {
+  sendToDisplay,
+  DISPLAY_SCOREBOARD
+} from "../../../../redux/actions/MonitorActions";
 
 class CricketMatchController extends Component {
   constructor(props) {
@@ -339,6 +352,7 @@ class CricketMatchController extends Component {
     this.props.setRuns(this.props.tournament._id, {
       matchId,
       ...currentBall,
+      inning: this.state.inning,
       runs
     });
   };
@@ -417,9 +431,7 @@ class CricketMatchController extends Component {
       let cursor = cPos.matrixTransform(this.ground.getScrCoord());
       this.props.setShotPos(this.props.tournament._id, {
         matchId: this.props.selected,
-        currentBall
-      });
-      this.setState({
+        ...currentBall,
         shot: { x: cursor.x, y: cursor.y }
       });
     }
@@ -579,6 +591,10 @@ class CricketMatchController extends Component {
     this.props.resetMatchConfig(tournamentId, matchId);
   };
 
+  setCurrentMatch = matchId => {
+    this.props.setCurrentMatch(this.props.tournament._id, matchId);
+  };
+
   getData = () => {
     let { selected } = this.props;
     let { matchData } = this.state;
@@ -637,6 +653,14 @@ class CricketMatchController extends Component {
     }
   };
 
+  setDisplay = data => {
+    this.props.sendToDisplay({
+      _id: this.props.tournament.id,
+      data,
+      type: DISPLAY_SCOREBOARD
+    });
+  };
+
   componentWillMount = () => {
     let res = this.getLocalStorageData();
     if (this.state.matchData) {
@@ -658,6 +682,12 @@ class CricketMatchController extends Component {
         this.props.selected,
         this.props.matches
       );
+      let scores = getInningScore(
+        currentMatch,
+        this.state.inning,
+        this.props.tournament.config.pointsPerWide,
+        this.props.tournament.config.pointsPerNoball
+      );
       let currentBall =
         currentMatch.matchData["inning" + this.state.inning][
           parseInt(this.state.over)
@@ -667,6 +697,29 @@ class CricketMatchController extends Component {
         currentMatch.matchData["inning" + this.state.inning][
           parseInt(this.state.over)
         ];
+
+      let overs =
+        parseInt(
+          totalBalls(currentMatch)["inning" + this.state.inning] /
+            this.props.tournament.config.ballsPerOver
+        ) +
+        "." +
+        (parseInt(totalBalls(currentMatch)["inning" + this.state.inning]) %
+          this.props.tournament.config.ballsPerOver);
+
+      let score = scores.total;
+
+      let wickets = getWickets(currentMatch, this.state.inning).length;
+
+      let bowlerData = getBowlerStat(
+        currentMatch,
+        this.state.inning,
+        this.props.tournament.config.pointsPerWide,
+        this.props.tournament.config.pointsPerNoball
+      );
+
+      let batsman = currentBall.batsman || null;
+      let batsmen = currentBall.batsmen || null;
 
       // let lastOver =
       //   this.state.over === "0"
@@ -685,7 +738,21 @@ class CricketMatchController extends Component {
       //     : currentMatch.matchData["inning" + this.state.inning][
       //         parseInt(this.state.over)
       //       ].balls[parseInt(this.state.ball) - 1];
-
+      this.setDisplay({
+        score,
+        wickets,
+        bowlerData,
+        batsmen,
+        batsman,
+        overs,
+        inning: this.state.inning,
+        bowler: currentBall.bowler,
+        thisOver,
+        battingTeam: this.state.battingTeam,
+        bowlingTeam: this.state.bowlingTeam,
+        matchData: this.state.matchData,
+        batsmenData: getBatsmenScore(currentMatch, this.state.battingTeam._id)
+      });
       return (
         <div>
           <div className="row">
@@ -705,6 +772,23 @@ class CricketMatchController extends Component {
                   active={this.state.inning}
                   onClick={this.changeInnings}
                 />
+                <h3>
+                  Score: <b>{scores.total}</b>/
+                  <span style={{ fontSize: "24px" }}>{wickets}</span>
+                  &nbsp;
+                  <span style={{ fontSize: "18px" }}>
+                    (
+                    {parseInt(
+                      totalBalls(currentMatch)["inning" + this.state.inning] /
+                        this.props.tournament.config.ballsPerOver
+                    )}
+                    .
+                    {parseInt(
+                      totalBalls(currentMatch)["inning" + this.state.inning]
+                    ) % this.props.tournament.config.ballsPerOver}
+                    )
+                  </span>
+                </h3>
               </div>
             </div>
           </div>
@@ -821,6 +905,46 @@ class CricketMatchController extends Component {
               }}
             >
               <div>
+                <h6>This will set this match as current match</h6>
+                <Button
+                  onClick={() => this.setCurrentMatch(this.props.selected)}
+                  title={"Set Current Match"}
+                />
+              </div>
+              <div style={{ paddingLeft: "30px" }}>
+                <h6>Set display</h6>
+                <Button
+                  onClick={() =>
+                    this.setDisplay({
+                      score,
+                      wickets,
+                      bowlerData,
+                      batsmen,
+                      batsman,
+                      overs,
+                      inning: this.state.inning,
+                      bowler: currentBall.bowler,
+                      thisOver,
+                      battingTeam: this.state.battingTeam,
+                      bowlingTeam: this.state.bowlingTeam,
+                      matchData: this.state.matchData
+                    })
+                  }
+                  title={"Set Display"}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="row">
+            <div
+              className="col s12"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                textAlign: "center"
+              }}
+            >
+              <div>
                 <h6>
                   <b>Careful!</b> this will reset the match
                 </h6>
@@ -859,7 +983,9 @@ const mapDispatchToProps = {
   setBowler,
   setBatsman,
   setBatsmen,
-  setOut
+  setOut,
+  setCurrentMatch,
+  sendToDisplay
 };
 
 export default withRouter(
